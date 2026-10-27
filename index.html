@@ -7481,5 +7481,250 @@
       closeCctvModal();
     }
   </script>
+    <!-- ترقية وإصلاح البريد المؤقت ليعمل 100% على GitHub دون لمس الكود الأصلي -->
+  <script>
+    (function() {
+      let tempMailApiBase = localStorage.getItem('darkx_real_mail_api') || "https://api.mail.tm";
+      let lastKnownMsgCount = 0;
+
+      // مسح أي بريد معطل قديم من الذاكرة
+      localStorage.removeItem('darkx_tm_addr');
+      localStorage.removeItem('darkx_tm_token');
+      localStorage.removeItem('darkx_tm_engine');
+
+      tempMailAddress = localStorage.getItem('darkx_real_mail_addr') || "";
+      tempMailToken = localStorage.getItem('darkx_real_mail_token') || "";
+
+      function extractApiList(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data['hydra:member'])) return data['hydra:member'];
+        if (Array.isArray(data.member)) return data.member;
+        return [];
+      }
+
+      window.openTempMailModal = function() {
+        document.getElementById('tempMailModal').style.display = 'flex';
+        if (!tempMailAddress || !tempMailToken || tempMailAddress.includes('1secmail')) {
+          window.generateNewTempEmailAccount();
+        } else {
+          document.getElementById('tempMailAddressDisplay').value = tempMailAddress;
+          window.refreshTempMailInbox(true);
+        }
+        if (tempMailPollTimer) clearInterval(tempMailPollTimer);
+        tempMailPollTimer = setInterval(() => window.refreshTempMailInbox(false), 4000);
+        if (typeof logUserActivity === 'function') logUserActivity("Temp Mail & Live Inbox");
+      };
+
+      window.copyTempMailAddress = function() {
+        const addr = document.getElementById('tempMailAddressDisplay').value;
+        if (!addr || !addr.includes('@') || addr.includes("...")) {
+          alert(currentSystemLang === 'ar' ? "انتظر ثانية حتى يكتمل إنشاء البريد..." : "Please wait for email creation...");
+          return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(addr).then(() => {
+            alert(currentSystemLang === 'ar' ? `تم نسخ البريد الحقيقي بنجاح:\n${addr}` : `Copied to clipboard:\n${addr}`);
+          }).catch(() => prompt("Copy Email:", addr));
+        } else {
+          prompt("Copy Email:", addr);
+        }
+      };
+
+      async function tryCreateAccountOnServer(apiBaseUrl) {
+        const domRes = await fetch(`${apiBaseUrl}/domains`, {
+          headers: { 'Accept': 'application/ld+json, application/json' },
+          cache: 'no-store'
+        });
+        if (!domRes.ok) throw new Error("Domain fetch failed");
+        const domData = await domRes.json();
+        const domains = extractApiList(domData);
+        if (domains.length === 0) throw new Error("No domains found");
+
+        const activeDomainObj = domains.find(d => d.isActive !== false) || domains[0];
+        const domainName = activeDomainObj.domain;
+
+        const cleanRandom = Math.random().toString(36).replace(/[^a-z0-9]/g, '').substring(0, 7);
+        const username = `darkx${cleanRandom}${Math.floor(100 + Math.random() * 899)}`;
+        const password = `DxPass${Math.floor(100000 + Math.random() * 899999)}!`;
+        const address = `${username}@${domainName}`;
+
+        const accRes = await fetch(`${apiBaseUrl}/accounts`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/ld+json, application/json'
+          },
+          body: JSON.stringify({ address: address, password: password })
+        });
+        if (!accRes.ok) throw new Error("Account creation rejected");
+
+        const tokRes = await fetch(`${apiBaseUrl}/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ address: address, password: password })
+        });
+        if (!tokRes.ok) throw new Error("Token generation failed");
+        const tokData = await tokRes.json();
+        if (!tokData.token) throw new Error("Empty token");
+
+        return { address, token: tokData.token, apiBase: apiBaseUrl };
+      }
+
+      window.generateNewTempEmailAccount = async function() {
+        const disp = document.getElementById('tempMailAddressDisplay');
+        const inbox = document.getElementById('tempMailInboxContainer');
+        const viewer = document.getElementById('tempMailMessageViewer');
+        const badge = document.getElementById('tempMailStatusBadge');
+
+        if (viewer) viewer.style.display = 'none';
+        disp.value = currentSystemLang === 'ar' ? "جاري إنشاء بريد حقيقي..." : "Creating real email...";
+        if (badge) badge.innerText = currentSystemLang === 'ar' ? "جاري حجز صندوق بريد سحابي..." : "Allocating cloud inbox...";
+
+        const servers = ["https://api.mail.tm", "https://api.mail.gw"];
+        let created = null;
+
+        for (const srv of servers) {
+          try {
+            created = await tryCreateAccountOnServer(srv);
+            if (created) break;
+          } catch (e) {}
+        }
+
+        if (created) {
+          tempMailAddress = created.address;
+          tempMailToken = created.token;
+          tempMailApiBase = created.apiBase;
+          lastKnownMsgCount = 0;
+
+          localStorage.setItem('darkx_real_mail_addr', tempMailAddress);
+          localStorage.setItem('darkx_real_mail_token', tempMailToken);
+          localStorage.setItem('darkx_real_mail_api', tempMailApiBase);
+
+          disp.value = tempMailAddress;
+          inbox.innerHTML = `<div style="text-align:center; color:#64748b; padding:16px;">${t('tm_empty')}</div>`;
+          if (badge) {
+            badge.style.color = "#00ffaa";
+            badge.innerText = currentSystemLang === 'ar'
+              ? "🟢 البريد متصل ونشط — انسخه وأرسل له أي رسالة الآن"
+              : "🟢 Inbox Active — Copy and send any email now";
+          }
+        } else {
+          disp.value = "اضغط (توليد بريد جديد) لإعادة المحاولة";
+          if (badge) {
+            badge.style.color = "#ff0033";
+            badge.innerText = "تعذر الاتصال بالسيرفر، تحقق من الإنترنت واضغط توليد بريد جديد";
+          }
+        }
+      };
+
+      window.refreshTempMailInbox = async function(manual = false) {
+        if (!tempMailAddress || !tempMailToken) return;
+        const inbox = document.getElementById('tempMailInboxContainer');
+        const badge = document.getElementById('tempMailStatusBadge');
+
+        if (manual && badge) {
+          badge.style.color = "#00f0ff";
+          badge.innerText = currentSystemLang === 'ar' ? "جاري فحص الرسائل الواردة..." : "Checking incoming mail...";
+        }
+
+        try {
+          const res = await fetch(`${tempMailApiBase}/messages?page=1`, {
+            headers: {
+              'Authorization': `Bearer ${tempMailToken}`,
+              'Accept': 'application/ld+json, application/json'
+            },
+            cache: 'no-store'
+          });
+
+          if (res.status === 401) {
+            window.generateNewTempEmailAccount();
+            return;
+          }
+
+          if (!res.ok) return;
+          const data = await res.json();
+          const messages = extractApiList(data);
+
+          if (badge) {
+            badge.style.color = "#00ffaa";
+            badge.innerText = currentSystemLang === 'ar'
+              ? `🟢 متصل بالبريد الحي — عدد الرسائل الواردة: (${messages.length})`
+              : `🟢 Live Inbox Connected — Messages: (${messages.length})`;
+          }
+
+          if (messages.length === 0) {
+            inbox.innerHTML = `<div style="text-align:center; color:#64748b; padding:16px;">${t('tm_empty')}</div>`;
+            return;
+          }
+
+          if (messages.length > lastKnownMsgCount && typeof playWalkieBeep === 'function') {
+            playWalkieBeep(1350, 0.12);
+          }
+          lastKnownMsgCount = messages.length;
+
+          inbox.innerHTML = messages.map(m => {
+            const fromAddr = (m.from && m.from.address) ? m.from.address : "Sender";
+            const subj = m.subject || "(بدون عنوان)";
+            const snippet = m.intro || (currentSystemLang === 'ar' ? "اضغط لقراءة الرسالة كاملة..." : "Click to read full message...");
+            const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "LIVE";
+            return `
+              <div style="background:#050d1a; border:1px solid #00ffaa; border-radius:10px; padding:10px; cursor:pointer;" onclick="readTempMailMessage('${m.id}')">
+                <div style="display:flex; justify-content:space-between; color:#00ffaa; font-weight:900; font-size:0.78rem;">
+                  <span>${fromAddr}</span>
+                  <span style="color:#ffe082;">${timeStr}</span>
+                </div>
+                <div style="color:#fff; font-weight:800; margin-top:4px;">${subj}</div>
+                <div style="color:#94a3b8; font-size:0.73rem; margin-top:2px;">${snippet}</div>
+              </div>
+            `;
+          }).join('');
+        } catch (e) {}
+      };
+
+      window.readTempMailMessage = async function(msgId) {
+        if (!msgId || !tempMailToken) return;
+        const viewer = document.getElementById('tempMailMessageViewer');
+        viewer.style.display = 'block';
+        viewer.innerHTML = `<div style="color:#00f0ff;">${t('scanning_signals')}</div>`;
+
+        try {
+          const res = await fetch(`${tempMailApiBase}/messages/${msgId}`, {
+            headers: {
+              'Authorization': `Bearer ${tempMailToken}`,
+              'Accept': 'application/ld+json, application/json'
+            },
+            cache: 'no-store'
+          });
+          const msg = await res.json();
+          const fromAddr = (msg.from && msg.from.address) ? msg.from.address : "";
+          const subj = msg.subject || "(بدون عنوان)";
+
+          let bodyContent = "";
+          if (msg.text) {
+            bodyContent = `<div style="white-space:pre-wrap; word-break:break-word; color:#f8fafc;">${msg.text}</div>`;
+          } else if (msg.html) {
+            const htmlRaw = Array.isArray(msg.html) ? msg.html.join('') : String(msg.html);
+            bodyContent = `<div style="background:#fff; color:#000; padding:8px; border-radius:8px; overflow-x:auto;">${htmlRaw}</div>`;
+          } else {
+            bodyContent = `<div style="color:#94a3b8;">${msg.intro || 'لا يوجد نص إضافي'}</div>`;
+          }
+
+          viewer.innerHTML = `
+            <div style="border-bottom:1px solid rgba(255,224,130,0.3); padding-bottom:6px; margin-bottom:8px;">
+              <div style="color:#00ffaa; font-weight:900;">من: ${fromAddr}</div>
+              <div style="color:#ffe082; font-weight:900;">العنوان: ${subj}</div>
+            </div>
+            ${bodyContent}
+          `;
+        } catch (e) {
+          viewer.innerHTML = `<div style="color:#ff0033;">تعذر فتح الرسالة، اضغط عليها مرة أخرى.</div>`;
+        }
+      };
+    })();
+  </script>
 </body>
 </html>
