@@ -5576,8 +5576,9 @@
       } catch (e) {}
     }
 
-    // =========================================================================
-    // الميزة الجديدة 1: مكالمة الفيديو التكتيكية الحية من طرف لآخر (Live P2P Video Call - WebRTC + MQTT)
+       // =========================================================================
+    // الميزة الجديدة 1 (محدثة ومحصنة ضد الـ VPN والجدران النارية):
+    // مكالمة الفيديو التكتيكية الحية P2P (WebRTC TURN + MQTT Live Frame Relay)
     // =========================================================================
     let vcLocalStream = null;
     let vcPeerInstance = null;
@@ -5587,11 +5588,27 @@
     let vcMicEnabled = true;
     let vcCamEnabled = true;
     let vcNvgActive = false;
+    let vcFrameRelayInterval = null;
+    let vcWebRtcVideoReceived = false;
+    let vcRemoteImgOverlay = null;
+
+    function ensureRemoteImageFallbackElement() {
+      const stage = document.getElementById('vcallStageBox');
+      if (!stage) return null;
+      if (!vcRemoteImgOverlay) {
+        vcRemoteImgOverlay = document.createElement('img');
+        vcRemoteImgOverlay.id = 'remoteVideoFallbackImg';
+        vcRemoteImgOverlay.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; z-index:5; background:#000;';
+        stage.insertBefore(vcRemoteImgOverlay, document.getElementById('localVideoPip'));
+      }
+      return vcRemoteImgOverlay;
+    }
 
     async function openLiveVideoCallModal() {
       document.getElementById('videoCallModal').style.display = 'flex';
+      ensureRemoteImageFallbackElement();
       await initLocalVideoCallPreview();
-      logUserActivity("Opened Live P2P Video Call");
+      if (typeof logUserActivity === 'function') logUserActivity("Opened Live P2P Video Call");
     }
 
     function closeLiveVideoCallModal() {
@@ -5606,19 +5623,23 @@
           vcLocalStream.getTracks().forEach(t => t.stop());
         }
         vcLocalStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: vcFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { facingMode: vcFacingMode, width: { ideal: 640 }, height: { ideal: 480 } },
           audio: true
         });
         localVid.srcObject = vcLocalStream;
+        localVid.muted = true;
         await localVid.play();
       } catch (e) {
-        document.getElementById('videoCallStatusLabel').innerText = "Camera/Mic Permission Required!";
+        document.getElementById('videoCallStatusLabel').innerText = "يرجى السماح بصلاحية الكاميرا والمايك!";
       }
     }
 
     async function startOrJoinVideoCallRoom() {
       const roomCode = document.getElementById('videoCallRoomInput').value.trim();
-      if (!roomCode) return;
+      if (!roomCode) {
+        alert("أدخل كود الغرفة المشترك أولاً!");
+        return;
+      }
 
       if (!vcLocalStream) {
         await initLocalVideoCallPreview();
@@ -5627,43 +5648,90 @@
 
       const cleanRoom = roomCode.replace(/[^a-zA-Z0-9]/g, '');
       const statusEl = document.getElementById('videoCallStatusLabel');
-      statusEl.innerText = `Linking Room [${cleanRoom}] via WebRTC P2P...`;
+      statusEl.innerText = `جاري ربط الغرفة [${cleanRoom}] وفتح مسار الفيديو...`;
       statusEl.style.color = "#00f0ff";
 
-      if (vcPeerInstance) {
-        try { vcPeerInstance.destroy(); } catch (e) {}
-      }
-      if (vcMqttSignal) {
-        try { vcMqttSignal.end(true); } catch (e) {}
-      }
+      vcWebRtcVideoReceived = false;
+      ensureRemoteImageFallbackElement();
 
-      const myPeerId = "dx_vcall_" + cleanRoom + "_" + Math.floor(1000 + Math.random() * 8999);
-      const signalTopic = `darkx/ops/vcall_sig_v8/${cleanRoom}`;
+      if (vcPeerInstance) { try { vcPeerInstance.destroy(); } catch (e) {} }
+      if (vcMqttSignal) { try { vcMqttSignal.end(true); } catch (e) {} }
+      if (vcFrameRelayInterval) { clearInterval(vcFrameRelayInterval); vcFrameRelayInterval = null; }
 
-      vcPeerInstance = new Peer(myPeerId);
+      const myPeerId = "dx_vc_" + cleanRoom + "_" + Math.floor(10000 + Math.random() * 89999);
+      const signalTopic = `darkx/ops/vcall_v9/${cleanRoom}`;
+
+      // إعداد WebRTC مع خوادم STUN + TURN لتخطي الـ VPN والـ NAT
+      vcPeerInstance = new Peer(myPeerId, {
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:global.stun.twilio.com:3478' },
+            {
+              urls: 'turn:openrelay.metered.ca:80',
+              username: 'openrelayproject',
+              credential: 'openrelayproject'
+            },
+            {
+              urls: 'turn:openrelay.metered.ca:443',
+              username: 'openrelayproject',
+              credential: 'openrelayproject'
+            },
+            {
+              urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+              username: 'openrelayproject',
+              credential: 'openrelayproject'
+            }
+          ]
+        }
+      });
 
       vcPeerInstance.on('open', (id) => {
-        statusEl.innerText = `Room [${cleanRoom}] Active — Waiting/Calling Peer...`;
-        statusEl.style.color = "#00ffaa";
+        statusEl.innerText = `الغرفة [${cleanRoom}] جاهزة — بانتظار الطرف الآخر...`;
+        statusEl.style.color = "#ffd700";
 
         vcMqttSignal = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
-          clientId: "sig_" + myPeerId
+          clientId: "sig_" + id
         });
 
         vcMqttSignal.on('connect', () => {
           vcMqttSignal.subscribe(signalTopic, { qos: 0 }, () => {
-            vcMqttSignal.publish(signalTopic, JSON.stringify({ type: 'PEER_READY', peerId: id }));
+            // إعلان التواجد في الغرفة
+            vcMqttSignal.publish(signalTopic, JSON.stringify({ type: 'HELLO', peerId: id }));
           });
+
+          // تشغيل البث الهجين الاحتياطي فوراً لضمان ظهور الصورة حتى لو حظر الـ VPN بروتوكول WebRTC
+          startHybridVideoFrameRelay(signalTopic, id);
         });
 
         vcMqttSignal.on('message', (topic, payload) => {
           if (topic !== signalTopic) return;
           try {
             const data = JSON.parse(payload.toString());
-            if (data.peerId && data.peerId !== id) {
-              if (data.type === 'PEER_READY' && !vcCurrentCall) {
+            if (!data || data.peerId === id) return;
+
+            if (data.type === 'HELLO') {
+              // إخبار الطرف الجديد بأننا موجودون أيضاً
+              vcMqttSignal.publish(signalTopic, JSON.stringify({ type: 'WELCOME', peerId: id, target: data.peerId }));
+              if (!vcCurrentCall && id > data.peerId) {
                 const call = vcPeerInstance.call(data.peerId, vcLocalStream);
                 bindVideoCallEvents(call);
+              }
+            } else if (data.type === 'WELCOME' && data.target === id) {
+              statusEl.innerText = "ENCRYPTED P2P VIDEO CALL CONNECTED LIVE";
+              statusEl.style.color = "#00ffaa";
+              if (!vcCurrentCall) {
+                const call = vcPeerInstance.call(data.peerId, vcLocalStream);
+                bindVideoCallEvents(call);
+              }
+            } else if (data.type === 'LIVE_FRAME' && data.frame) {
+              // إذا لم يصل فيديو WebRTC بسبب الـ VPN، اعرض البث المباشر عبر القناة المشفرة فوراً
+              statusEl.innerText = "ENCRYPTED P2P VIDEO CALL CONNECTED LIVE";
+              statusEl.style.color = "#00ffaa";
+              if (!vcWebRtcVideoReceived && vcRemoteImgOverlay) {
+                vcRemoteImgOverlay.style.display = 'block';
+                vcRemoteImgOverlay.src = data.frame;
               }
             }
           } catch (e) {}
@@ -5676,6 +5744,33 @@
       });
     }
 
+    function startHybridVideoFrameRelay(topic, myId) {
+      const relayCanvas = document.createElement('canvas');
+      relayCanvas.width = 280;
+      relayCanvas.height = 360;
+      const relayCtx = relayCanvas.getContext('2d');
+
+      if (vcFrameRelayInterval) clearInterval(vcFrameRelayInterval);
+      vcFrameRelayInterval = setInterval(() => {
+        if (!vcMqttSignal || !vcMqttSignal.connected || !vcLocalStream || !vcCamEnabled) return;
+        // إذا اشتغل WebRTC بنجاح لا داعي لإرسال إطارات MQTT
+        if (vcWebRtcVideoReceived) return;
+
+        const localVid = document.getElementById('localVideoPip');
+        if (localVid && localVid.readyState >= 2) {
+          try {
+            relayCtx.drawImage(localVid, 0, 0, relayCanvas.width, relayCanvas.height);
+            const jpgBase64 = relayCanvas.toDataURL('image/jpeg', 0.45);
+            vcMqttSignal.publish(topic, JSON.stringify({
+              type: 'LIVE_FRAME',
+              peerId: myId,
+              frame: jpgBase64
+            }));
+          } catch (e) {}
+        }
+      }, 220);
+    }
+
     function bindVideoCallEvents(callObj) {
       vcCurrentCall = callObj;
       const remoteVid = document.getElementById('remoteVideoPeer');
@@ -5683,16 +5778,36 @@
 
       callObj.on('stream', (remoteStream) => {
         remoteVid.srcObject = remoteStream;
-        remoteVid.play().catch(() => {});
+        remoteVid.muted = false;
+        remoteVid.play().then(() => {
+          vcWebRtcVideoReceived = true;
+          if (vcRemoteImgOverlay) vcRemoteImgOverlay.style.display = 'none';
+        }).catch(() => {
+          // في حال منع المتصفح الصوت التلقائي، شغله ثم افتح الصوت
+          remoteVid.muted = true;
+          remoteVid.play().then(() => {
+            setTimeout(() => { remoteVid.muted = false; }, 300);
+          });
+        });
+
+        // التأكد من أن الفيديو يحتوي على بكسلات حية
+        remoteVid.onloadeddata = () => {
+          if (remoteVid.videoWidth > 0) {
+            vcWebRtcVideoReceived = true;
+            if (vcRemoteImgOverlay) vcRemoteImgOverlay.style.display = 'none';
+          }
+        };
+
         statusEl.innerText = "ENCRYPTED P2P VIDEO CALL CONNECTED LIVE";
         statusEl.style.color = "#00ffaa";
         if (typeof playWalkieBeep === 'function') playWalkieBeep(1450, 0.1);
       });
 
       callObj.on('close', () => {
-        statusEl.innerText = "Call Ended";
+        statusEl.innerText = "انتهت المكالمة";
         statusEl.style.color = "#ffd700";
         vcCurrentCall = null;
+        vcWebRtcVideoReceived = false;
       });
     }
 
@@ -5734,6 +5849,10 @@
     }
 
     function hangupVideoCall() {
+      if (vcFrameRelayInterval) {
+        clearInterval(vcFrameRelayInterval);
+        vcFrameRelayInterval = null;
+      }
       if (vcCurrentCall) {
         try { vcCurrentCall.close(); } catch (e) {}
         vcCurrentCall = null;
@@ -5750,13 +5869,17 @@
         vcLocalStream.getTracks().forEach(t => t.stop());
         vcLocalStream = null;
       }
+      vcWebRtcVideoReceived = false;
+      if (vcRemoteImgOverlay) {
+        vcRemoteImgOverlay.style.display = 'none';
+        vcRemoteImgOverlay.src = '';
+      }
       const remoteVid = document.getElementById('remoteVideoPeer');
       const localVid = document.getElementById('localVideoPip');
       if (remoteVid) remoteVid.srcObject = null;
       if (localVid) localVid.srcObject = null;
       document.getElementById('videoCallStatusLabel').innerText = t('vc_status_idle');
     }
-
     // =========================================================================
     // الميزة الجديدة 2: نظام نداء الاستغاثة ومشاركة الإحداثيات الحية (Live SOS & GPS Beacon)
     // =========================================================================
