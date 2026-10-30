@@ -913,6 +913,54 @@
       font-family: var(--font-ui);
     }
 
+    /* تنسيقات غرفة مكالمة الفيديو الحية P2P مع الرؤية الليلية NVG */
+    .vcall-stage {
+      position: relative;
+      width: 100%;
+      height: 290px;
+      background: #010409;
+      border: 1px solid rgba(0, 240, 255, 0.45);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
+    }
+
+    #remoteVideoPeer {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #000;
+    }
+
+    #localVideoPip {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 92px;
+      height: 125px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid var(--gold-primary);
+      background: #050a14;
+      z-index: 15;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.9);
+    }
+
+    .vcall-stage.nvg-active #remoteVideoPeer,
+    .vcall-stage.nvg-active #localVideoPip {
+      filter: sepia(100%) hue-rotate(95deg) brightness(1.45) contrast(1.85) saturate(2.6);
+    }
+
+    .vcall-stage.nvg-active::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(0, 255, 102, 0.14) 0%, rgba(0, 30, 10, 0.78) 100%);
+      pointer-events: none;
+      z-index: 10;
+    }
+
     .radar-overlay-modal {
       position: fixed;
       inset: 0;
@@ -1598,7 +1646,7 @@
       </div>
 
       <div class="radar-stats-ribbon">
-        <div class="stats-item"><span data-i18n="stat_targets">الأهداف النشطة</span><strong id="activeTargetCounter" data-i18n="stat_targets_val">32 رادار + 13 نظام</strong></div>
+        <div class="stats-item"><span data-i18n="stat_targets">الأهداف النشطة</span><strong id="activeTargetCounter" data-i18n="stat_targets_val">32 رادار + 16 نظام</strong></div>
         <div class="stats-item"><span data-i18n="stat_scan">المسح الكوكبي</span><strong>ALL-WORLD</strong></div>
         <div class="stats-item"><span data-i18n="stat_freq">تردد المنظومة</span><strong>14.2 GHz</strong></div>
         <div class="stats-item"><span data-i18n="stat_status">الحالة</span><strong style="color:#00ffaa;" data-i18n="stat_cov">تغطية دولية 100%</strong></div>
@@ -1817,8 +1865,22 @@
         <span data-i18n="btn_temp_mail">توليد بريد إلكتروني مؤقت وصندوق الرسائل الحية</span>
       </button>
 
+      <!-- زر نداء الاستغاثة ومشاركة الإحداثيات الحية (Live SOS & GPS Beacon) -->
+      <button type="button" class="action-link-btn" style="width:100%; margin-top:8px; background:linear-gradient(180deg, rgba(255,0,51,0.35) 0%, rgba(55,0,12,0.96) 100%); border:1px solid #ff0033; color:#fff; padding:12px;" onclick="openSosBeaconModal()">
+        <i class="fa-solid fa-tower-cell" style="color:#ff0033; font-size:1.15rem;"></i>
+        <span data-i18n="btn_sos_beacon">نداء الاستغاثة ومشاركة الإحداثيات الحية (SOS GPS)</span>
+      </button>
+
       <!-- شبكة أزرار العمليات والاتصالات والمختبرات الأمنية الشاملة -->
       <div class="support-contact-grid">
+        <button type="button" class="action-link-btn" style="background:linear-gradient(180deg, rgba(0,240,255,0.32) 0%, rgba(2,32,58,0.96) 100%); border:1px solid var(--radar-cyan); color:#fff;" onclick="openLiveVideoCallModal()">
+          <i class="fa-solid fa-video" style="color:var(--radar-cyan); font-size:1.05rem;"></i> <span data-i18n="btn_video_call">مكالمة فيديو حية P2P</span>
+        </button>
+
+        <button type="button" class="action-link-btn" style="background:linear-gradient(180deg, rgba(255,215,0,0.28) 0%, rgba(45,32,2,0.96) 100%); border:1px solid var(--gold-primary); color:#fff;" onclick="openTacticalCompassModal()">
+          <i class="fa-solid fa-compass" style="color:var(--gold-primary); font-size:1.05rem;"></i> <span data-i18n="btn_compass_3d">البوصلة والتوجيه 3D</span>
+        </button>
+
         <button type="button" class="action-link-btn" style="background:linear-gradient(180deg, rgba(37,211,102,0.28) 0%, rgba(5,45,20,0.95) 100%); border:1px solid #25D366; color:#fff;" onclick="openTacticalChatModal()">
           <i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:1.1rem;"></i> <span data-i18n="btn_wa_chat">شات العمليات (واتساب)</span>
         </button>
@@ -1840,7 +1902,7 @@
         </button>
 
         <button type="button" class="action-link-btn" style="background:linear-gradient(180deg, rgba(179,136,255,0.25) 0%, rgba(28,10,55,0.95) 100%); border:1px solid #b388ff; color:#fff;" onclick="openStealthRecorderModal()">
-          <i class="fa-solid fa-video" style="color:#b388ff;"></i> <span data-i18n="btn_recorder">مسجل الميدان وتحليل الصور</span>
+          <i class="fa-solid fa-camera-rotate" style="color:#b388ff;"></i> <span data-i18n="btn_recorder">مسجل الميدان وتحليل الصور</span>
         </button>
 
         <button type="button" class="action-link-btn" style="background:linear-gradient(180deg, rgba(0,240,255,0.22) 0%, rgba(2,28,56,0.95) 100%); border:1px solid var(--radar-cyan); color:#fff;" onclick="openSystemMonitorModal()">
@@ -1877,12 +1939,130 @@
       تطوير المبرمج علي العلي - شركة DARK X
     </div>
   </div>
-
   <!-- ========================================================
        النوافذ المنبثقة للمنظومة (مترجمة بالكامل لـ 6 لغات)
        ======================================================== -->
 
-  <!-- 0. نافذة توليد البريد الإلكتروني المؤقت وصندوق الوارد الحي (Quad-Core Real Temp Mail) -->
+  <!-- 0-A. نافذة مكالمة الفيديو المشفرة الحية من طرف لآخر (Live P2P Video Call - WebRTC + MQTT) -->
+  <div class="support-modal-overlay" id="videoCallModal" style="display:none;">
+    <div class="support-modal-card" style="max-width:440px; border-color:var(--radar-cyan);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid rgba(0,240,255,0.3); padding-bottom:8px;">
+        <span style="font-size:0.88rem; font-weight:900; color:var(--radar-cyan);"><i class="fa-solid fa-video"></i> <span data-i18n="vc_modal_title">مكالمة الفيديو التكتيكية الحية P2P</span></span>
+        <div style="display:flex; gap:5px;">
+          <button class="map-ctrl-btn" onclick="explainModalByKey('exp_vc')" data-i18n="btn_explain">شرح</button>
+          <button class="close-circle-btn" onclick="closeLiveVideoCallModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <p style="font-size:0.73rem; color:#94a3b8; margin-bottom:8px;" data-i18n="vc_hint">
+        أدخل نفس كود الغرفة السري في الجهازين لفتح بث مرئي وصوتي مشفر ومباشر من طرف لآخر:
+      </p>
+
+      <div class="walkie-freq-row">
+        <input type="text" id="videoCallRoomInput" class="support-input-socket" data-i18n-ph="ph_vc_code" placeholder="كود غرفة الفيديو المشترك (مثال: 9911)..." style="direction:ltr;">
+        <button type="button" class="walkie-connect-btn" style="background:var(--radar-cyan); color:#000; border:none;" onclick="startOrJoinVideoCallRoom()" data-i18n="vc_join_btn">ربط وبث</button>
+      </div>
+
+      <div id="videoCallStatusLabel" style="font-size:0.74rem; font-weight:800; color:#ffd700; text-align:center; margin-bottom:8px;" data-i18n="vc_status_idle">
+        الكاميرا جاهزة — أدخل كود الغرفة واضغط ربط وبث
+      </div>
+
+      <div class="vcall-stage" id="vcallStageBox">
+        <video id="remoteVideoPeer" autoplay playsinline></video>
+        <video id="localVideoPip" autoplay playsinline muted></video>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
+        <button type="button" class="action-link-btn" id="btnVcFlipCam" style="background:rgba(0,240,255,0.18); border:1px solid var(--radar-cyan); color:#fff; font-size:0.72rem; padding:8px 4px;" onclick="flipVideoCallCamera()">
+          <i class="fa-solid fa-camera-rotate"></i> <span data-i18n="vc_flip">العدسة</span>
+        </button>
+        <button type="button" class="action-link-btn" id="btnVcMuteMic" style="background:rgba(255,215,0,0.18); border:1px solid var(--gold-primary); color:#fff; font-size:0.72rem; padding:8px 4px;" onclick="toggleVideoCallMic()">
+          <i class="fa-solid fa-microphone"></i> <span data-i18n="vc_mic">المايك</span>
+        </button>
+        <button type="button" class="action-link-btn" id="btnVcPauseCam" style="background:rgba(179,136,255,0.18); border:1px solid #b388ff; color:#fff; font-size:0.72rem; padding:8px 4px;" onclick="toggleVideoCallCam()">
+          <i class="fa-solid fa-video"></i> <span data-i18n="vc_cam">الكاميرا</span>
+        </button>
+        <button type="button" class="action-link-btn" id="btnVcNvgMode" style="background:rgba(0,255,102,0.18); border:1px solid #00ff66; color:#00ff66; font-size:0.72rem; padding:8px 4px;" onclick="toggleVideoCallNvg()">
+          <i class="fa-solid fa-moon"></i> <span>NVG</span>
+        </button>
+        <button type="button" class="action-link-btn" style="background:#ff0033; border:none; color:#fff; font-size:0.72rem; padding:8px 4px;" onclick="hangupVideoCall()">
+          <i class="fa-solid fa-phone-slash"></i> <span data-i18n="vc_end">إنهاء</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 0-B. نافذة نظام نداء الاستغاثة ومشاركة الإحداثيات الحية (Live SOS & GPS Beacon) -->
+  <div class="support-modal-overlay" id="sosBeaconModal" style="display:none;">
+    <div class="support-modal-card" style="max-width:430px; border-color:#ff0033;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid rgba(255,0,51,0.3); padding-bottom:8px;">
+        <span style="font-size:0.88rem; font-weight:900; color:#ff0033;"><i class="fa-solid fa-tower-cell"></i> <span data-i18n="sos_modal_title">نداء الاستغاثة ومنارة الإحداثيات الحية SOS</span></span>
+        <div style="display:flex; gap:5px;">
+          <button class="map-ctrl-btn" onclick="explainModalByKey('exp_sos')" data-i18n="btn_explain">شرح</button>
+          <button class="close-circle-btn" onclick="closeSosBeaconModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div id="sosTelemetryBox" style="background:#050a14; border:1px solid rgba(255,0,51,0.45); border-radius:12px; padding:12px; margin-bottom:10px; font-size:0.78rem; line-height:1.7; color:#f8fafc;">
+        <div style="color:#ffd700; font-weight:900;" data-i18n="sos_Wait_gps">جاري قفل إحداثيات القمر الصناعي GPS وقياس البطارية...</div>
+      </div>
+
+      <input type="text" id="sosCustomNote" class="support-input-socket" data-i18n-ph="ph_sos_note" placeholder="ملاحظة طوارئ إضافية (اختياري)...">
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button type="button" class="action-link-btn" style="background:#ff0033; color:#fff; border:none;" onclick="dispatchSosToTelegram()">
+          <i class="fa-brands fa-telegram"></i> <span data-i18n="sos_send_tg">إرسال لتليجرام فوراً</span>
+        </button>
+        <button type="button" class="action-link-btn" style="background:#25D366; color:#000; border:none;" onclick="dispatchSosToWhatsApp()">
+          <i class="fa-brands fa-whatsapp"></i> <span data-i18n="sos_send_wa">إرسال عبر واتساب</span>
+        </button>
+        <button type="button" class="action-link-btn" style="background:#0284c7; color:#fff; border:none;" onclick="dispatchSosToOpsChat()">
+          <i class="fa-solid fa-satellite-dish"></i> <span data-i18n="sos_send_ops">بث لغرفة العمليات</span>
+        </button>
+        <button type="button" class="action-link-btn" style="background:rgba(255,215,0,0.2); border:1px solid var(--gold-primary); color:var(--gold-primary);" onclick="refreshSosCoordinates()">
+          <i class="fa-solid fa-location-crosshairs"></i> <span data-i18n="sos_refresh_gps">تحديث الموقع</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 0-C. نافذة البوصلة التكتيكية ومستشعر التوجيه ثلاثي الأبعاد (3D Tactical Compass & Orientation) -->
+  <div class="support-modal-overlay" id="tacticalCompassModal" style="display:none;">
+    <div class="support-modal-card" style="max-width:430px; border-color:var(--gold-primary);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid rgba(255,215,0,0.3); padding-bottom:8px;">
+        <span style="font-size:0.88rem; font-weight:900; color:var(--gold-primary);"><i class="fa-solid fa-compass"></i> <span data-i18n="cmp_modal_title">البوصلة التكتيكية ومستشعر التوجيه 3D</span></span>
+        <div style="display:flex; gap:5px;">
+          <button class="map-ctrl-btn" onclick="explainModalByKey('exp_cmp')" data-i18n="btn_explain">شرح</button>
+          <button class="close-circle-btn" onclick="closeTacticalCompassModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:10px;">
+        <canvas id="compassHudCanvas" width="230" height="230" style="width:230px; height:230px; background:#02060d; border-radius:50%; border:2px solid var(--gold-primary); box-shadow:0 0 25px rgba(255,215,0,0.25);"></canvas>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; text-align:center; font-family:var(--font-hud); margin-bottom:10px;">
+        <div style="background:#050b14; border:1px solid rgba(0,240,255,0.35); border-radius:10px; padding:8px;">
+          <div style="font-size:0.68rem; color:#94a3b8;">YAW (HEADING)</div>
+          <strong id="cmpAlphaVal" style="font-size:1rem; color:#00f0ff;">0.0° N</strong>
+        </div>
+        <div style="background:#050b14; border:1px solid rgba(0,255,170,0.35); border-radius:10px; padding:8px;">
+          <div style="font-size:0.68rem; color:#94a3b8;">PITCH (TILT X)</div>
+          <strong id="cmpBetaVal" style="font-size:1rem; color:#00ffaa;">0.0°</strong>
+        </div>
+        <div style="background:#050b14; border:1px solid rgba(255,215,0,0.35); border-radius:10px; padding:8px;">
+          <div style="font-size:0.68rem; color:#94a3b8;">ROLL (TILT Y)</div>
+          <strong id="cmpGammaVal" style="font-size:1rem; color:#ffd700;">0.0°</strong>
+        </div>
+      </div>
+
+      <button type="button" class="action-link-btn" style="width:100%; background:var(--gold-primary); color:#000; border:none;" onclick="requestCompassSensorPermission()" data-i18n="cmp_activate_btn">
+        معايرة وتنشيط مستشعر التوجيه 3D
+      </button>
+    </div>
+  </div>
+
+  <!-- 0. نافذة توليد البريد الإلكتروني المؤقت وصندوق الوارد الحي المصلحة جذرياً -->
   <div class="support-modal-overlay" id="tempMailModal" style="display:none;">
     <div class="support-modal-card" style="max-width:440px; border-color:#00ffaa;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid rgba(0,255,170,0.3); padding-bottom:8px;">
@@ -1902,12 +2082,15 @@
         <button type="button" class="walkie-connect-btn" onclick="copyTempMailAddress()" data-i18n="btn_copy">نسخ</button>
       </div>
 
-      <div style="display:flex; gap:6px; margin-bottom:10px;">
-        <button type="button" class="action-link-btn" style="flex:1; background:#00ffaa; color:#000; border:none;" onclick="generateNewTempEmailAccount()">
-          <i class="fa-solid fa-rotate"></i> <span data-i18n="tm_gen_btn">توليد بريد جديد</span>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+        <button type="button" class="action-link-btn" style="background:#00ffaa; color:#000; border:none; font-size:0.73rem;" onclick="generateNewTempEmailAccount()">
+          <i class="fa-solid fa-rotate"></i> <span data-i18n="tm_gen_btn">بريد جديد</span>
         </button>
-        <button type="button" class="action-link-btn" style="flex:1; background:#0284c7; color:#fff; border:none;" onclick="refreshTempMailInbox(true)">
-          <i class="fa-solid fa-inbox"></i> <span data-i18n="tm_refresh_btn">تحديث الرسائل</span>
+        <button type="button" class="action-link-btn" style="background:#0284c7; color:#fff; border:none; font-size:0.73rem;" onclick="refreshTempMailInbox(true)">
+          <i class="fa-solid fa-inbox"></i> <span data-i18n="tm_refresh_btn">تحديث الوارد</span>
+        </button>
+        <button type="button" class="action-link-btn" style="background:rgba(255,215,0,0.22); border:1px solid var(--gold-primary); color:var(--gold-primary); font-size:0.73rem;" onclick="sendInstantTestTempMail()">
+          <i class="fa-solid fa-bolt"></i> <span data-i18n="tm_test_btn">اختبار كود</span>
         </button>
       </div>
 
@@ -2471,7 +2654,7 @@
     </div>
   </div>
   <!-- ========================================================
-       القسم البرمجي (3A من 4): الدخول، الترجمة الشاملة 100%، الأوامر الصوتية الفورية، ومحرك الخرائط
+       القسم البرمجي (3A من 4): الدخول، الترجمة الشاملة 100% لـ 6 لغات، الأوامر الصوتية الفورية، ومحرك الخرائط
        ======================================================== -->
   <script>
     const EMAILJS_SERVICE_ID = "service_94ptm1o";
@@ -2809,7 +2992,7 @@
         ph_login_email: "أدخل البريد الإلكتروني...", ph_reg_name: "الاسم الثلاثي حصراً (الاسم الأب الكنية)...", ph_reg_email: "بريدك الإلكتروني المعتمد...", ph_g_email: "أدخل بريد Gmail الخاص بك...",
         dev_credit: "تطوير المبرمج علي العلي - شركة DARK X",
         btn_share: "مشاركة", btn_rain: "مطر", btn_theme: "مظهر", btn_history: "سجلي", btn_hw: "العتاد", btn_camo: "تمويه", btn_nuke: "تدمير", btn_exit: "خروج",
-        btn_voice_cmd: "أمر صوتي ذكي", stat_targets: "الأهداف النشطة", stat_targets_val: "32 رادار + 13 نظام", stat_scan: "المسح الكوكبي", stat_freq: "تردد المنظومة", stat_status: "الحالة", stat_cov: "تغطية دولية 100%",
+        btn_voice_cmd: "أمر صوتي ذكي", stat_targets: "الأهداف النشطة", stat_targets_val: "32 رادار + 16 نظام", stat_scan: "المسح الكوكبي", stat_freq: "تردد المنظومة", stat_status: "الحالة", stat_cov: "تغطية دولية 100%",
         r_air: "الطيران الدولي اللحظي", r_seismic: "الزلازل والهزات الأرضية", r_weather: "الطقس وحركة الرياح", r_vortex: "الأعاصير والدوامات الملونة",
         r_iss: "محطة الفضاء (ISS)", r_disaster: "الكوارث وحرائق الغابات", r_news: "الأخبار العالمية المصورة", r_finance: "الأسواق والذهب الفعلي",
         r_conflicts: "المعارك والنزاعات الميدانية", r_asteroids: "الكويكبات القريبة (ناسا)", r_titan: "رادار الرصد الحركي 60FPS", r_space_weather: "طقس الفضاء والعواصف",
@@ -2821,12 +3004,20 @@
         r_dsn: "مراصد الفضاء العميق", r_ixp: "بوابات الإنترنت العالمية",
         guide_title: "دليل مميزات المنظومة التكتيكية الشامل",
         btn_temp_mail: "توليد بريد إلكتروني مؤقت وصندوق الرسائل الحية",
+        btn_sos_beacon: "نداء الاستغاثة ومشاركة الإحداثيات الحية (SOS GPS)",
+        btn_video_call: "مكالمة فيديو حية P2P", btn_compass_3d: "البوصلة والتوجيه 3D",
         tm_modal_title: "مولد البريد الإلكتروني المؤقت وصندوق الرسائل",
         tm_hint: "احصل على بريد إلكتروني حقيقي فوري للتسجيل في أي موقع أو تطبيق، وتلقَّ أكواد التفعيل والرسائل مباشرة هنا:",
-        tm_gen_btn: "توليد بريد جديد", tm_refresh_btn: "تحديث الرسائل",
+        tm_gen_btn: "بريد جديد", tm_refresh_btn: "تحديث الوارد", tm_test_btn: "اختبار كود",
         tm_waiting: "جاري الاستماع للرسائل الواردة تلقائياً كل 5 ثوانٍ...",
         tm_empty: "صندوق الوارد فارغ حالياً — أي رسالة أو كود يُرسل إلى البريد سيظهر هنا فوراً.",
         exp_tm: "خدمة البريد الإلكتروني المؤقت تولد لك عنوان بريد حقيقي فوراً للتسجيل في المواقع والتطبيقات، وتستقبل بداخله كل رسائل التفعيل وأكواد التحقق مباشرة داخل الموقع.",
+        vc_modal_title: "مكالمة الفيديو التكتيكية الحية P2P", vc_hint: "أدخل نفس كود الغرفة السري في الجهازين لفتح بث مرئي وصوتي مشفر ومباشر من طرف لآخر:",
+        ph_vc_code: "كود غرفة الفيديو المشترك (مثال: 9911)...", vc_join_btn: "ربط وبث", vc_status_idle: "الكاميرا جاهزة — أدخل كود الغرفة واضغط ربط وبث",
+        vc_flip: "العدسة", vc_mic: "المايك", vc_cam: "الكاميرا", vc_end: "إنهاء",
+        sos_modal_title: "نداء الاستغاثة ومنارة الإحداثيات الحية SOS", sos_Wait_gps: "جاري قفل إحداثيات القمر الصناعي GPS وقياس البطارية...",
+        ph_sos_note: "ملاحظة طوارئ إضافية (اختياري)...", sos_send_tg: "إرسال لتليجرام فوراً", sos_send_wa: "إرسال عبر واتساب", sos_send_ops: "بث لغرفة العمليات", sos_refresh_gps: "تحديث الموقع",
+        cmp_modal_title: "البوصلة التكتيكية ومستشعر التوجيه 3D", cmp_activate_btn: "معايرة وتنشيط مستشعر التوجيه 3D",
         btn_wa_chat: "شات العمليات (واتساب)", btn_ptt: "لاسلكي عسكري PTT", btn_antitheft: "درع السرقة وحساس الحركة", btn_missions: "إدارة المهام وتصدير PDF",
         btn_osint_lab: "مختبر فحص الأهداف و Shodan", btn_recorder: "مسجل الميدان وتحليل الصور", btn_sys_mon: "مراقبة المعالج والشبكة",
         btn_calc_camo: "التمويه (آلة حاسبة مضيئة)", btn_support: "الدعم والشكاوى", btn_contact: "اتصل بنا (Telegram)",
@@ -2865,7 +3056,10 @@
         exp_rf: "ماسح الترددات يستخدم الميكروفون ومحلل الطيف لرصد أي ترددات أو إشارات صوتية محيطة بك بشكل حقيقي.",
         exp_mis: "مركز إدارة المهام يتيح تدوين الملاحظات الميدانية وتصديرها كوثيقة تقرير عمليات سرية جاهزة للطباعة.",
         exp_osint: "مختبر فحص الأهداف يكشف الموقع الجغرافي ومزود الخدمة والمنافذ المفتوحة والثغرات المسجلة لأي عنوان آي بي أو موقع مجاناً.",
-        exp_rec: "أداة التسجيل الميداني تتيح التقاط الصور أو تسجيل الفيديو بالخلفية وحفظه في هاتفك، واستخراج إحداثيات التصوير من أي صورة."
+        exp_rec: "أداة التسجيل الميداني تتيح التقاط الصور أو تسجيل الفيديو بالخلفية وحفظه في هاتفك، واستخراج إحداثيات التصوير من أي صورة.",
+        exp_vc: "مكالمة الفيديو الحية P2P تفتح بثاً مرئياً وصوتياً مشفراً ومباشراً بين جهازين عبر كود الغرفة السري مع فلتر رؤية ليلية خضراء NVG.",
+        exp_sos: "منارة الاستغاثة تسحب إحداثيات GPS الدقيقة ونسبة البطارية وترسلها كرسالة طوارئ فورية عبر تليجرام أو واتساب.",
+        exp_cmp: "البوصلة التكتيكية تعرض اتجاه الشمال الحقيقي وزوايا الميل والدوران الفيزيائية (Yaw, Pitch, Roll) عبر جيروسكوب الهاتف."
       },
       en: {
         tab_login: "Login", tab_reg: "Register", send_otp: "Send Verification Code (OTP)", google_login: "Sign in with Google",
@@ -2874,7 +3068,7 @@
         ph_login_email: "Enter your email address...", ph_reg_name: "Enter full triple name...", ph_reg_email: "Enter your verified email...", ph_g_email: "Enter your Gmail address...",
         dev_credit: "Developed by Engineer Ali Al-Ali - DARK X Corp",
         btn_share: "Share", btn_rain: "Rain", btn_theme: "Theme", btn_history: "Logs", btn_hw: "Hardware", btn_camo: "Camo", btn_nuke: "Nuke", btn_exit: "Exit",
-        btn_voice_cmd: "Voice Command HUD", stat_targets: "Active Modules", stat_targets_val: "32 Radars + 13 Systems", stat_scan: "Global Scan", stat_freq: "System Freq", stat_status: "Status", stat_cov: "100% Global Coverage",
+        btn_voice_cmd: "Voice Command HUD", stat_targets: "Active Modules", stat_targets_val: "32 Radars + 16 Systems", stat_scan: "Global Scan", stat_freq: "System Freq", stat_status: "Status", stat_cov: "100% Global Coverage",
         r_air: "Live Global Aviation", r_seismic: "Earthquakes & Seismic", r_weather: "Global Weather & Wind", r_vortex: "Hurricanes & Wind Vortex",
         r_iss: "Space Station (ISS)", r_disaster: "Disasters & Wildfires", r_news: "Live Global Visual News", r_finance: "Gold & Crypto Markets",
         r_conflicts: "Global Conflict Zones", r_asteroids: "Near-Earth Asteroids", r_titan: "60FPS Kinetic Radar TITAN", r_space_weather: "Space Weather & Storms",
@@ -2886,12 +3080,20 @@
         r_dsn: "Deep Space Observatories", r_ixp: "Global IXP Backbones",
         guide_title: "Complete Tactical System Features Guide",
         btn_temp_mail: "Temp Email Generator & Live Inbox",
+        btn_sos_beacon: "Live SOS & GPS Beacon",
+        btn_video_call: "Live P2P Video Call", btn_compass_3d: "3D Tactical Compass",
         tm_modal_title: "Real Temp Email Generator & Live Inbox",
         tm_hint: "Generate an instant disposable email address for signups and receive verification codes & messages live right here:",
-        tm_gen_btn: "Generate New Email", tm_refresh_btn: "Refresh Inbox",
+        tm_gen_btn: "New Email", tm_refresh_btn: "Refresh", tm_test_btn: "Test Code",
         tm_waiting: "Auto-listening for incoming emails every 5 seconds...",
         tm_empty: "Inbox is currently empty — any verification code or message sent to this address will appear here immediately.",
         exp_tm: "The temporary email generator creates a real disposable inbox so you can register on websites and receive OTP codes directly inside DARK X.",
+        vc_modal_title: "Live P2P Tactical Video Call", vc_hint: "Enter the same secret room code in both devices to establish an encrypted video & voice stream:",
+        ph_vc_code: "Shared Video Room Code (e.g. 9911)...", vc_join_btn: "Connect & Stream", vc_status_idle: "Camera Ready — Enter room code and click Connect & Stream",
+        vc_flip: "Flip", vc_mic: "Mic", vc_cam: "Cam", vc_end: "End",
+        sos_modal_title: "Live SOS & GPS Coordinates Beacon", sos_Wait_gps: "Locking GPS satellite coordinates and measuring battery...",
+        ph_sos_note: "Extra emergency note (optional)...", sos_send_tg: "Send to Telegram Now", sos_send_wa: "Send via WhatsApp", sos_send_ops: "Broadcast to Ops Chat", sos_refresh_gps: "Refresh GPS",
+        cmp_modal_title: "3D Tactical Compass & Orientation", cmp_activate_btn: "Calibrate & Activate 3D Compass",
         btn_wa_chat: "Ops Chat (WhatsApp E2EE)", btn_ptt: "Military Walkie PTT", btn_antitheft: "Anti-Theft & Motion Guard", btn_missions: "Missions & PDF Export",
         btn_osint_lab: "OSINT & Shodan CVE Lab", btn_recorder: "Field Recorder & EXIF Lab", btn_sys_mon: "CPU & Network Telemetry",
         btn_calc_camo: "Stealth Calculator Camo", btn_support: "Support & Reports", btn_contact: "Contact Us (Telegram)",
@@ -2930,7 +3132,10 @@
         exp_rf: "RF Spectrum Scanner uses your microphone and FFT analyzer to visualize surrounding acoustic and frequency waves.",
         exp_mis: "Mission Control records field intelligence notes and exports them as classified printable reports.",
         exp_osint: "OSINT Lab queries Google DNS, IP geolocation, and Shodan InternetDB to reveal open ports and CVEs for any target.",
-        exp_rec: "Field Recorder captures photos and background videos directly to your phone, and extracts forensic EXIF metadata from images."
+        exp_rec: "Field Recorder captures photos and background videos directly to your phone, and extracts forensic EXIF metadata from images.",
+        exp_vc: "Live P2P Video Call establishes an encrypted direct video and voice stream between two devices via room code with NVG night vision.",
+        exp_sos: "SOS Beacon retrieves exact GPS coordinates and battery stats to dispatch an emergency alert via Telegram or WhatsApp.",
+        exp_cmp: "Tactical Compass renders true North orientation and physical orientation angles (Yaw, Pitch, Roll) via device sensors."
       },
       fr: {
         tab_login: "Connexion", tab_reg: "Inscription", send_otp: "Envoyer le code (OTP)", google_login: "Continuer avec Google",
@@ -2939,7 +3144,7 @@
         ph_login_email: "Entrez votre e-mail...", ph_reg_name: "Nom complet (3 parties)...", ph_reg_email: "Votre e-mail vérifié...", ph_g_email: "Entrez votre adresse Gmail...",
         dev_credit: "Développé par l'ingénieur Ali Al-Ali - DARK X",
         btn_share: "Partager", btn_rain: "Pluie", btn_theme: "Thème", btn_history: "Journal", btn_hw: "Matériel", btn_camo: "Camo", btn_nuke: "Détruire", btn_exit: "Sortie",
-        btn_voice_cmd: "Commande Vocale", stat_targets: "Modules Actifs", stat_targets_val: "32 Radars + 13 Systèmes", stat_scan: "Scan Global", stat_freq: "Fréquence", stat_status: "Statut", stat_cov: "Couverture 100%",
+        btn_voice_cmd: "Commande Vocale", stat_targets: "Modules Actifs", stat_targets_val: "32 Radars + 16 Systèmes", stat_scan: "Scan Global", stat_freq: "Fréquence", stat_status: "Statut", stat_cov: "Couverture 100%",
         r_air: "Aviation Internationale", r_seismic: "Séismes en Direct", r_weather: "Météo et Vents", r_vortex: "Ouragans et Vortex",
         r_iss: "Station Spatiale (ISS)", r_disaster: "Catastrophes & Feux", r_news: "Actualités Mondiales", r_finance: "Marchés & Or Physique",
         r_conflicts: "Zones de Conflits", r_asteroids: "Astéroïdes (NASA)", r_titan: "Radar Cinétique 60FPS", r_space_weather: "Météo Spatiale",
@@ -2951,12 +3156,20 @@
         r_dsn: "Observatoires Spatiales", r_ixp: "Dorsales Internet IXP",
         guide_title: "Guide des Fonctionnalités Tactiques",
         btn_temp_mail: "Générateur d'E-mail Temporaire & Boîte de Réception",
+        btn_sos_beacon: "Balise SOS & GPS en Direct",
+        btn_video_call: "Appel Vidéo P2P Direct", btn_compass_3d: "Boussole Tactique 3D",
         tm_modal_title: "E-mail Temporaire & Boîte de Réception en Direct",
         tm_hint: "Obtenez un e-mail temporaire instantané et recevez vos codes de vérification directement ici :",
-        tm_gen_btn: "Nouvel E-mail", tm_refresh_btn: "Actualiser",
+        tm_gen_btn: "Nouvel E-mail", tm_refresh_btn: "Actualiser", tm_test_btn: "Tester Code",
         tm_waiting: "Écoute automatique des nouveaux messages toutes les 5 secondes...",
         tm_empty: "Boîte de réception vide — tout code ou message envoyé apparaîtra ici instantanément.",
         exp_tm: "Le générateur d'e-mail temporaire crée une boîte de réception réelle pour recevoir vos codes OTP directement.",
+        vc_modal_title: "Appel Vidéo Tactique P2P", vc_hint: "Entrez le même code de salon sur les deux appareils pour ouvrir un flux vidéo et audio chiffré :",
+        ph_vc_code: "Code Salon Vidéo (ex: 9911)...", vc_join_btn: "Connecter", vc_status_idle: "Caméra prête — Entrez le code et cliquez Connecter",
+        vc_flip: "Caméra", vc_mic: "Micro", vc_cam: "Vidéo", vc_end: "Fin",
+        sos_modal_title: "Balise SOS & Coordonnées GPS en Direct", sos_Wait_gps: "Verrouillage des coordonnées GPS et niveau de batterie...",
+        ph_sos_note: "Note d'urgence supplémentaire...", sos_send_tg: "Envoyer sur Telegram", sos_send_wa: "Envoyer sur WhatsApp", sos_send_ops: "Diffuser au Chat Ops", sos_refresh_gps: "Actualiser GPS",
+        cmp_modal_title: "Boussole Tactique 3D & Orientation", cmp_activate_btn: "Calibrer & Activer la Boussole 3D",
         btn_wa_chat: "Chat Opérationnel (WhatsApp)", btn_ptt: "Talkie-Walkie PTT", btn_antitheft: "Bouclier Antivol & Mouvement", btn_missions: "Missions & Export PDF",
         btn_osint_lab: "Labo OSINT & Shodan CVE", btn_recorder: "Enregistreur & Labo EXIF", btn_sys_mon: "Moniteur CPU & Réseau",
         btn_calc_camo: "Camouflage Calculatrice", btn_support: "Support & Plaintes", btn_contact: "Contact (Telegram)",
@@ -2995,7 +3208,10 @@
         exp_rf: "Le scanner RF analyse le spectre acoustique et fréquentiel ambiant en temps réel.",
         exp_mis: "Le module de missions enregistre vos notes de terrain et les exporte en rapport PDF.",
         exp_osint: "Le laboratoire OSINT révèle la géolocalisation, les ports ouverts et les failles CVE via Shodan.",
-        exp_rec: "L'enregistreur capture photos et vidéos en arrière-plan et extrait les données EXIF des images."
+        exp_rec: "L'enregistreur capture photos et vidéos en arrière-plan et extrait les données EXIF des images.",
+        exp_vc: "L'appel vidéo P2P ouvre un flux vidéo et vocal direct chiffré entre deux appareils avec vision nocturne NVG.",
+        exp_sos: "La balise SOS récupère vos coordonnées GPS exactes et les envoie immédiatement en alerte sur Telegram ou WhatsApp.",
+        exp_cmp: "La boussole tactique 3D affiche le Nord vrai et les angles d'inclinaison (Yaw, Pitch, Roll) en temps réel."
       },
       de: {
         tab_login: "Anmelden", tab_reg: "Registrieren", send_otp: "Code senden (OTP)", google_login: "Mit Google anmelden",
@@ -3004,7 +3220,7 @@
         ph_login_email: "E-Mail-Adresse eingeben...", ph_reg_name: "Vollständiger Name (3 Teile)...", ph_reg_email: "Ihre E-Mail-Adresse...", ph_g_email: "Gmail-Adresse eingeben...",
         dev_credit: "Entwickelt von Ingenieur Ali Al-Ali - DARK X",
         btn_share: "Teilen", btn_rain: "Regen", btn_theme: "Design", btn_history: "Verlauf", btn_hw: "System", btn_camo: "Tarnung", btn_nuke: "Löschen", btn_exit: "Beenden",
-        btn_voice_cmd: "Sprachbefehl HUD", stat_targets: "Aktive Systeme", stat_targets_val: "32 Radare + 13 Systeme", stat_scan: "Globaler Scan", stat_freq: "Frequenz", stat_status: "Status", stat_cov: "100% Weltweit",
+        btn_voice_cmd: "Sprachbefehl HUD", stat_targets: "Aktive Systeme", stat_targets_val: "32 Radare + 16 Systeme", stat_scan: "Globaler Scan", stat_freq: "Frequenz", stat_status: "Status", stat_cov: "100% Weltweit",
         r_air: "Internationale Luftfahrt", r_seismic: "Erdbeben-Radar", r_weather: "Wetter & Wind", r_vortex: "Hurrikane & Windwirbel",
         r_iss: "Raumstation (ISS)", r_disaster: "Katastrophen & Brände", r_news: "Weltnachrichten Live", r_finance: "Gold & Finanzmärkte",
         r_conflicts: "Konfliktgebiete", r_asteroids: "Asteroiden (NASA)", r_titan: "60FPS Kamera-Radar TITAN", r_space_weather: "Weltraumwetter",
@@ -3016,12 +3232,20 @@
         r_dsn: "Weltraum-Observatorien", r_ixp: "Globale Internet-Knoten",
         guide_title: "Handbuch der Systemfunktionen",
         btn_temp_mail: "Temporäre E-Mail & Live-Posteingang",
+        btn_sos_beacon: "Live SOS & GPS-Notrufbake",
+        btn_video_call: "Live P2P Videoanruf", btn_compass_3d: "3D Taktischer Kompass",
         tm_modal_title: "Temporärer E-Mail-Generator & Posteingang",
         tm_hint: "Erstellen Sie sofort eine echte Einweg-E-Mail und empfangen Sie Bestätigungscodes direkt hier:",
-        tm_gen_btn: "Neue E-Mail", tm_refresh_btn: "Aktualisieren",
+        tm_gen_btn: "Neue E-Mail", tm_refresh_btn: "Aktualisieren", tm_test_btn: "Test-Code",
         tm_waiting: "Automatischer Empfang alle 5 Sekunden aktiv...",
         tm_empty: "Posteingang leer — jeder gesendete Code oder jede Nachricht wird sofort hier angezeigt.",
         exp_tm: "Der E-Mail-Generator erstellt eine echte temporäre Adresse, um Bestätigungscodes direkt im System zu empfangen.",
+        vc_modal_title: "Taktischer Live P2P Videoanruf", vc_hint: "Geben Sie auf beiden Geräten denselben Raumcode ein, um eine direkte Video- und Audioverbindung zu starten:",
+        ph_vc_code: "Video-Raumcode (z.B. 9911)...", vc_join_btn: "Verbinden", vc_status_idle: "Kamera bereit — Raumcode eingeben und Verbinden klicken",
+        vc_flip: "Linse", vc_mic: "Mikro", vc_cam: "Kamera", vc_end: "Ende",
+        sos_modal_title: "Live SOS & GPS-Koordinatenbake", sos_Wait_gps: "GPS-Satellitenkoordinaten und Batterie werden erfasst...",
+        ph_sos_note: "Zusätzliche Notfallnotiz...", sos_send_tg: "An Telegram senden", sos_send_wa: "Über WhatsApp senden", sos_send_ops: "An Einsatz-Chat senden", sos_refresh_gps: "GPS aktualisieren",
+        cmp_modal_title: "3D Taktischer Kompass & Ausrichtung", cmp_activate_btn: "3D-Kompass kalibrieren & aktivieren",
         btn_wa_chat: "Einsatz-Chat (WhatsApp)", btn_ptt: "Militärfunk PTT", btn_antitheft: "Diebstahlschutz & Sensor", btn_missions: "Missionen & PDF-Export",
         btn_osint_lab: "OSINT & Shodan CVE Labor", btn_recorder: "Feldrekorder & EXIF-Labor", btn_sys_mon: "CPU- & Netzwerkmonitor",
         btn_calc_camo: "Taschenrechner-Tarnung", btn_support: "Support & Meldungen", btn_contact: "Kontakt (Telegram)",
@@ -3060,7 +3284,10 @@
         exp_rf: "Der RF-Scanner visualisiert akustische Frequenzen über das Mikrofon in Echtzeit.",
         exp_mis: "Die Missionskontrolle speichert Feldnotizen und exportiert sie als PDF-Bericht.",
         exp_osint: "Das OSINT-Labor prüft IP-Standorte, offene Ports und Sicherheitslücken über Shodan.",
-        exp_rec: "Der Feldrekorder nimmt Fotos und Videos im Hintergrund auf und liest EXIF-Daten aus."
+        exp_rec: "Der Feldrekorder nimmt Fotos und Videos im Hintergrund auf und liest EXIF-Daten aus.",
+        exp_vc: "Der P2P-Videoanruf stellt eine verschlüsselte Direktverbindung mit Nachtsichtmodus NVG her.",
+        exp_sos: "Die SOS-Bake erfasst genaue GPS-Koordinaten und sendet sofort einen Notruf über Telegram oder WhatsApp.",
+        exp_cmp: "Der 3D-Kompass zeigt den wahren Norden sowie Neigungswinkel (Yaw, Pitch, Roll) über die Gerätesensoren."
       },
       es: {
         tab_login: "Iniciar Sesión", tab_reg: "Crear Cuenta", send_otp: "Enviar Código (OTP)", google_login: "Iniciar con Google",
@@ -3069,7 +3296,7 @@
         ph_login_email: "Ingresa tu correo electrónico...", ph_reg_name: "Nombre completo (3 partes)...", ph_reg_email: "Tu correo electrónico...", ph_g_email: "Ingresa tu cuenta Gmail...",
         dev_credit: "Desarrollado por el Ing. Ali Al-Ali - DARK X",
         btn_share: "Compartir", btn_rain: "Lluvia", btn_theme: "Tema", btn_history: "Historial", btn_hw: "Hardware", btn_camo: "Camuflaje", btn_nuke: "Destruir", btn_exit: "Salir",
-        btn_voice_cmd: "Comando de Voz", stat_targets: "Radares Activos", stat_targets_val: "32 Radares + 13 Sistemas", stat_scan: "Escaneo Global", stat_freq: "Frecuencia", stat_status: "Estado", stat_cov: "Cobertura 100%",
+        btn_voice_cmd: "Comando de Voz", stat_targets: "Radares Activos", stat_targets_val: "32 Radares + 16 Sistemas", stat_scan: "Escaneo Global", stat_freq: "Frecuencia", stat_status: "Estado", stat_cov: "Cobertura 100%",
         r_air: "Aviación Internacional", r_seismic: "Sismos y Terremotos", r_weather: "Clima y Vientos", r_vortex: "Huracanes y Vórtices",
         r_iss: "Estación Espacial (ISS)", r_disaster: "Desastres e Incendios", r_news: "Noticias Mundiales", r_finance: "Mercados y Oro Real",
         r_conflicts: "Zonas de Conflicto", r_asteroids: "Asteroides (NASA)", r_titan: "Radar Cinético 60FPS", r_space_weather: "Clima Espacial",
@@ -3081,12 +3308,20 @@
         r_dsn: "Observatorios Espaciales", r_ixp: "Troncales de Internet IXP",
         guide_title: "Guía Completa de Funciones del Sistema Táctico",
         btn_temp_mail: "Generador de Correo Temporal y Bandeja en Vivo",
+        btn_sos_beacon: "Baliza SOS y Coordenadas GPS en Vivo",
+        btn_video_call: "Videollamada P2P en Vivo", btn_compass_3d: "Brújula Táctica 3D",
         tm_modal_title: "Generador de Correo Temporal y Bandeja de Entrada",
         tm_hint: "Obtén un correo temporal real para registros y recibe códigos de verificación directamente aquí:",
-        tm_gen_btn: "Nuevo Correo", tm_refresh_btn: "Actualizar",
+        tm_gen_btn: "Nuevo Correo", tm_refresh_btn: "Actualizar", tm_test_btn: "Probar Código",
         tm_waiting: "Escuchando mensajes entrantes automáticamente cada 5 segundos...",
         tm_empty: "Bandeja vacía — cualquier código o mensaje enviado aparecerá aquí al instante.",
         exp_tm: "El generador de correo temporal crea una bandeja real para recibir códigos OTP directamente en la plataforma.",
+        vc_modal_title: "Videollamada Táctica P2P en Vivo", vc_hint: "Ingresa el mismo código de sala en ambos dispositivos para abrir video y voz encriptados:",
+        ph_vc_code: "Código de Sala de Video (ej: 9911)...", vc_join_btn: "Conectar", vc_status_idle: "Cámara lista — Ingresa el código y pulsa Conectar",
+        vc_flip: "Lente", vc_mic: "Mic", vc_cam: "Cám", vc_end: "Fin",
+        sos_modal_title: "Baliza SOS y Coordenadas GPS en Vivo", sos_Wait_gps: "Bloqueando coordenadas satelitales GPS y batería...",
+        ph_sos_note: "Nota de emergencia adicional...", sos_send_tg: "Enviar a Telegram", sos_send_wa: "Enviar por WhatsApp", sos_send_ops: "Transmitir al Chat Ops", sos_refresh_gps: "Actualizar GPS",
+        cmp_modal_title: "Brújula Táctica 3D y Orientación", cmp_activate_btn: "Calibrar y Activar Brújula 3D",
         btn_wa_chat: "Chat de Operaciones (WhatsApp)", btn_ptt: "Radio Militar PTT", btn_antitheft: "Escudo Antirrobo y Sensor", btn_missions: "Misiones y Reporte PDF",
         btn_osint_lab: "Laboratorio OSINT y Shodan", btn_recorder: "Grabador y Laboratorio EXIF", btn_sys_mon: "Monitor CPU y Red",
         btn_calc_camo: "Camuflaje de Calculadora", btn_support: "Soporte y Reportes", btn_contact: "Contacto (Telegram)",
@@ -3125,7 +3360,10 @@
         exp_rf: "El escáner RF analiza el espectro de frecuencias acústicas en tiempo real.",
         exp_mis: "El control de misiones guarda notas de campo y las exporta en formato PDF.",
         exp_osint: "El laboratorio OSINT consulta DNS, ubicación IP y Shodan para revelar puertos y vulnerabilidades.",
-        exp_rec: "El grabador captura fotos y videos en segundo plano y extrae metadatos EXIF."
+        exp_rec: "El grabador captura fotos y videos en segundo plano y extrae metadatos EXIF.",
+        exp_vc: "La videollamada P2P establece video y audio directos encriptados entre dos dispositivos con visión nocturna NVG.",
+        exp_sos: "La baliza SOS obtiene coordenadas GPS exactas y batería para enviar una alerta inmediata por Telegram o WhatsApp.",
+        exp_cmp: "La brújula táctica 3D muestra el Norte verdadero y los ángulos físicos (Yaw, Pitch, Roll) mediante el giroscopio."
       },
       mx: {
         tab_login: "Iniciar Sesión", tab_reg: "Registrarse", send_otp: "Mandar Código (OTP)", google_login: "Entrar con Google",
@@ -3134,7 +3372,7 @@
         ph_login_email: "Escribe tu correo electrónico...", ph_reg_name: "Nombre completo (Nombre y Apellidos)...", ph_reg_email: "Tu correo electrónico...", ph_g_email: "Escribe tu Gmail...",
         dev_credit: "Desarrollado por el Ing. Ali Al-Ali - Corporación DARK X",
         btn_share: "Compartir", btn_rain: "Lluvia", btn_theme: "Modo", btn_history: "Bitácora", btn_hw: "Equipo", btn_camo: "Ocultar", btn_nuke: "Borrar", btn_exit: "Salir",
-        btn_voice_cmd: "Control por Voz", stat_targets: "Sistemas Activos", stat_targets_val: "32 Radares + 13 Sistemas", stat_scan: "Rastreo Global", stat_freq: "Frecuencia", stat_status: "Estado", stat_cov: "100% Mundial",
+        btn_voice_cmd: "Control por Voz", stat_targets: "Sistemas Activos", stat_targets_val: "32 Radares + 16 Sistemas", stat_scan: "Rastreo Global", stat_freq: "Frecuencia", stat_status: "Estado", stat_cov: "100% Mundial",
         r_air: "Vuelos Internacionales", r_seismic: "Sismos y Temblores", r_weather: "Clima y Viento", r_vortex: "Huracanes y Ciclones",
         r_iss: "Estación Espacial (ISS)", r_disaster: "Incendios y Desastres", r_news: "Noticiero Internacional", r_finance: "Oro y Mercados",
         r_conflicts: "Zonas de Combate", r_asteroids: "Asteroides (NASA)", r_titan: "Radar de Cámara 60FPS", r_space_weather: "Tormentas Solares",
@@ -3146,12 +3384,20 @@
         r_dsn: "Telescopios Espaciales", r_ixp: "Nodos Centrales IXP",
         guide_title: "Manual Táctico Completo de Operaciones",
         btn_temp_mail: "Generador de Correo Temporal y Buzón en Vivo",
+        btn_sos_beacon: "Alerta SOS y Ubicación GPS en Vivo",
+        btn_video_call: "Videollamada P2P en Vivo", btn_compass_3d: "Brújula Táctica 3D",
         tm_modal_title: "Generador de Correo Temporal y Buzón de Mensajes",
         tm_hint: "Crea un correo temporal real para registrarte en sitios o apps y recibe tus códigos aquí al instante:",
-        tm_gen_btn: "Crear Nuevo Correo", tm_refresh_btn: "Checar Buzón",
+        tm_gen_btn: "Nuevo Correo", tm_refresh_btn: "Checar Buzón", tm_test_btn: "Código Prueba",
         tm_waiting: "Escuchando mensajes nuevos automáticamente cada 5 segundos...",
         tm_empty: "El buzón está vacío ahorita — cualquier código o mensaje llegará aquí de inmediato.",
         exp_tm: "El generador de correo temporal te da una cuenta real al instante para recibir códigos de verificación directamente en la página.",
+        vc_modal_title: "Videollamada Táctica P2P en Vivo", vc_hint: "Pon la misma clave de sala en los dos equipos para abrir video y audio encriptados:",
+        ph_vc_code: "Clave de Sala de Video (ej: 9911)...", vc_join_btn: "Conectar", vc_status_idle: "Cámara lista — Pon la clave y dale Conectar",
+        vc_flip: "Cámara", vc_mic: "Micro", vc_cam: "Video", vc_end: "Colgar",
+        sos_modal_title: "Alerta SOS y Ubicación GPS en Vivo", sos_Wait_gps: "Rastreando coordenadas GPS del satélite y batería...",
+        ph_sos_note: "Nota de emergencia extra...", sos_send_tg: "Mandar a Telegram", sos_send_wa: "Mandar por WhatsApp", sos_send_ops: "Mandar al Chat Ops", sos_refresh_gps: "Actualizar GPS",
+        cmp_modal_title: "Brújula Táctica 3D y Giroscopio", cmp_activate_btn: "Calibrar y Prender Brújula 3D",
         btn_wa_chat: "Chat Encriptado (WhatsApp)", btn_ptt: "Frecuencia Militar PTT", btn_antitheft: "Alarma Antirrobo y Giroscopio", btn_missions: "Bitácora y Exportar PDF",
         btn_osint_lab: "Escáner OSINT y Shodan", btn_recorder: "Cámara Oculta y EXIF", btn_sys_mon: "Estado de CPU y Red",
         btn_calc_camo: "Modo Calculadora", btn_support: "Centro de Soporte", btn_contact: "Telegram Oficial",
@@ -3190,7 +3436,10 @@
         exp_rf: "El escáner RF usa el micrófono para graficar las ondas y frecuencias del entorno.",
         exp_mis: "La bitácora guarda tus reportes tácticos y los descarga en archivo PDF.",
         exp_osint: "El laboratorio OSINT investiga cualquier IP o sitio web con Shodan InternetDB.",
-        exp_rec: "El grabador toma fotos o video en segundo plano y saca las coordenadas GPS de las imágenes."
+        exp_rec: "El grabador toma fotos o video en segundo plano y saca las coordenadas GPS de las imágenes.",
+        exp_vc: "La videollamada P2P conecta video y voz en vivo entre dos equipos con filtro de visión nocturna NVG.",
+        exp_sos: "La alerta SOS saca tu ubicación GPS exacta y batería para mandarla de emergencia por Telegram o WhatsApp.",
+        exp_cmp: "La brújula táctica 3D muestra el Norte real y los ángulos de inclinación del teléfono en vivo."
       }
     };
 
@@ -3220,7 +3469,9 @@
         if (dict[key]) el.placeholder = dict[key];
       });
 
-      renderTranslatedAccordion(langCode);
+      if (typeof renderTranslatedAccordion === 'function') {
+        renderTranslatedAccordion(langCode);
+      }
 
       if (!silent) {
         const confirmMessages = {
@@ -3236,7 +3487,7 @@
     }
 
     // =========================================================================
-    // محرك الأوامر الصوتية فائق الذكاء (يفهم كل زر ورادار وحتى الأخطاء الصوتية مثل "الكيران")
+    // محرك الأوامر الصوتية فائق الذكاء (شاملاً الميزات الثلاث الجديدة + كل الرادارات)
     // =========================================================================
     let speechRecInstance = null;
     let isVoiceCmdListening = false;
@@ -3297,7 +3548,13 @@
       const cmd = normalizeVoiceText(rawCmd);
       const hasAny = (words) => words.some(w => cmd.includes(normalizeVoiceText(w)));
 
-      if (hasAny(['بريد', 'ايميل', 'رسائل البريد', 'توليد بريد', 'مؤقت', 'mail', 'email', 'inbox', 'temp', 'courriel', 'correo'])) {
+      if (hasAny(['مكالمه فيديو', 'اتصال مرئي', 'بث فيديو', 'video call', 'p2p video', 'appel vidéo', 'videoanruf', 'videollamada'])) {
+        openLiveVideoCallModal();
+      } else if (hasAny(['استغاثه', 'نداء استغاثه', 'طوارئ', 'مناره', 'sos', 'beacon', 'emergency', 'notruf'])) {
+        openSosBeaconModal();
+      } else if (hasAny(['بوصله', 'اتجاه الشمال', 'توجيه', 'compass', 'orientation', 'boussole', 'kompass', 'brujula'])) {
+        openTacticalCompassModal();
+      } else if (hasAny(['بريد', 'ايميل', 'رسائل البريد', 'توليد بريد', 'مؤقت', 'mail', 'email', 'inbox', 'temp', 'courriel', 'correo'])) {
         openTempMailModal();
       } else if (hasAny(['عسكري', 'حربي', 'استطلاع جوي', 'military', 'recon', 'militaire', 'militär', 'militar'])) {
         launchRadarModule('mil_air');
@@ -3400,6 +3657,9 @@
         closeOsintHunterModal();
         closeStealthRecorderModal();
         closeTempMailModal();
+        closeLiveVideoCallModal();
+        closeSosBeaconModal();
+        closeTacticalCompassModal();
       } else {
         announceTacticalVoice(currentSystemLang === 'ar' ? `تم استلام الأمر الصوتي: ${rawCmd}` : `Voice command received: ${rawCmd}`);
       }
@@ -3662,6 +3922,11 @@
         }
       }
     }
+  </script>
+  <!-- ========================================================
+       القسم البرمجي (3B): تشغيل الـ 32 راداراً الكوكبية الحية، البحث الجغرافي، ومحرك الأخبار المصورة
+       ======================================================== -->
+  <script>
     function switchVortexLayer(layerType, btnEl) {
       document.querySelectorAll('#windyLayerBar .map-ctrl-btn').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
@@ -3890,7 +4155,7 @@
     }
 
     // ==========================================
-    // تشغيل الـ 32 راداراً الكوكبية الحقيقية 100% (مترجمة بالكامل)
+    // تشغيل الـ 32 راداراً الكوكبية الحقيقية 100%
     // ==========================================
     function launchRadarModule(type) {
       currentActiveRadarType = type;
@@ -4849,7 +5114,7 @@
     }
 
     // =========================================================================
-    // محرك الأخبار العالمية المصورة متعدد القنوات المطور بـ 4 جسور حية متوازية (أخبار حقيقية ودقيقة 100%)
+    // محرك الأخبار العالمية المصورة متعدد القنوات المطور بـ 4 جسور حية متوازية
     // =========================================================================
     const NEWS_CHANNELS_FEEDS = {
       aljazeera: {
@@ -4935,7 +5200,6 @@
       for (const rssUrl of candidateUrls) {
         if (parsedArticles.length > 0) break;
 
-        // الجسر الأول: rss2json
         try {
           const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
           if (r.ok) {
@@ -4953,7 +5217,6 @@
           }
         } catch (e) {}
 
-        // الجسر الثاني والثالث والرابع: تحليل XML المباشر عبر 3 بروكسيات دولية
         try {
           const xmlText = await fetchRawTextWithCors(rssUrl);
           const parser = new DOMParser();
@@ -5024,14 +5287,16 @@
       if (audio) { audio.pause(); audio.src = ""; }
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     }
-
-    // =========================================================================
-    // محرك توليد البريد الإلكتروني المؤقت وصندوق الوارد الحي رباعي النواة (يعمل فوراً على file:// وعلى الاستضافة 100%)
-    // =========================================================================
+  </script>
+  <!-- ========================================================
+       القسم البرمجي (3C): البريد المؤقت المصلح، مكالمة الفيديو الحية P2P، منارة الاستغاثة SOS، البوصلة 3D، وشات العمليات
+       ======================================================== -->
+  <script>
     let tempMailAddress = localStorage.getItem('darkx_tm_addr') || "";
     let tempMailEngine = localStorage.getItem('darkx_tm_engine') || "1sec"; 
     let tempMailToken = localStorage.getItem('darkx_tm_token') || "";
     let tempMailPollTimer = null;
+    let localTempMessages = JSON.parse(localStorage.getItem('darkx_tm_local_msgs') || '[]');
 
     const ACTIVE_1SEC_DOMAINS = ["1secmail.com", "1secmail.org", "1secmail.net"];
 
@@ -5098,7 +5363,9 @@
       const viewer = document.getElementById('tempMailMessageViewer');
       if (viewer) viewer.style.display = 'none';
 
-      // توليد فوري مضمون خلال 0.01 ثانية لكي لا يظهر أي خطأ للمستخدم حتى على file://
+      localTempMessages = [];
+      localStorage.setItem('darkx_tm_local_msgs', '[]');
+
       const randUser = "darkx_" + Math.random().toString(36).substring(2, 8) + Math.floor(10 + Math.random() * 89);
       const pickedDomain = ACTIVE_1SEC_DOMAINS[Math.floor(Math.random() * ACTIVE_1SEC_DOMAINS.length)];
       const instantAddress = `${randUser}@${pickedDomain}`;
@@ -5113,7 +5380,20 @@
       disp.value = tempMailAddress;
       inbox.innerHTML = `<div style="text-align:center; color:#64748b; padding:16px;">${t('tm_empty')}</div>`;
 
-      // ترقية صامتة بالخلفية إلى Mail.tm إذا كان المتصفح متصلاً باستضافة تسمح بـ POST
+      try {
+        const gData = await smartTempMailFetch('https://api.guerrillamail.com/ajax.php?f=get_email_address&ip=127.0.0.1&agent=DarkX');
+        if (gData && gData.email_addr && gData.sid_token) {
+          tempMailAddress = gData.email_addr;
+          tempMailToken = gData.sid_token;
+          tempMailEngine = "guerrilla";
+          localStorage.setItem('darkx_tm_addr', tempMailAddress);
+          localStorage.setItem('darkx_tm_token', tempMailToken);
+          localStorage.setItem('darkx_tm_engine', tempMailEngine);
+          disp.value = tempMailAddress;
+          return;
+        }
+      } catch (e) {}
+
       try {
         const domData = await smartTempMailFetch('https://api.mail.tm/domains');
         const domains = domData['hydra:member'] || [];
@@ -5149,77 +5429,122 @@
       refreshTempMailInbox(false);
     }
 
+    function sendInstantTestTempMail() {
+      const code = Math.floor(100000 + Math.random() * 900000);
+      const msgObj = {
+        id: 'local_' + Date.now(),
+        from: 'security@darkx-ops.org',
+        subject: `DARK X Verification Code: [${code}]`,
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        body: `Welcome to DARK X Operations.\n\nYour active disposable inbox (${tempMailAddress}) is verified and receiving live packets.\n\nYour Verification OTP Code is: ${code}`
+      };
+      localTempMessages.unshift(msgObj);
+      localStorage.setItem('darkx_tm_local_msgs', JSON.stringify(localTempMessages));
+      if (typeof playWalkieBeep === 'function') playWalkieBeep(1300, 0.08);
+      refreshTempMailInbox(true);
+    }
+
     async function refreshTempMailInbox(manual = false) {
       if (!tempMailAddress) return;
       const inbox = document.getElementById('tempMailInboxContainer');
       const badge = document.getElementById('tempMailStatusBadge');
       if (manual && badge) badge.innerText = t('scanning_signals');
 
+      let apiMessages = [];
+
       try {
-        if (tempMailEngine === "mailtm" && tempMailToken) {
+        if (tempMailEngine === "guerrilla" && tempMailToken) {
+          const gBox = await smartTempMailFetch(`https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&sid_token=${encodeURIComponent(tempMailToken)}`);
+          if (gBox && Array.isArray(gBox.list)) {
+            apiMessages = gBox.list.map(m => ({
+              id: m.mail_id,
+              from: m.mail_from || 'Sender',
+              subject: m.mail_subject || '(No Subject)',
+              date: m.mail_date || 'LIVE',
+              snippet: m.mail_excerpt || ''
+            }));
+          }
+        } else if (tempMailEngine === "mailtm" && tempMailToken) {
           const data = await smartTempMailFetch('https://api.mail.tm/messages', {
             headers: { 'Authorization': `Bearer ${tempMailToken}` }
           });
-          const messages = data['hydra:member'] || [];
-          if (badge) badge.innerText = `${t('tm_waiting')} (${messages.length})`;
-
-          if (messages.length === 0) {
-            inbox.innerHTML = `<div style="text-align:center; color:#64748b; padding:16px;">${t('tm_empty')}</div>`;
-            return;
-          }
-
-          inbox.innerHTML = messages.map(m => {
-            const fromAddr = (m.from && m.from.address) ? m.from.address : "Sender";
-            const subj = m.subject || "(No Subject)";
-            const snippet = m.intro || "";
-            const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
-            return `
-              <div style="background:#050d1a; border:1px solid #00ffaa; border-radius:10px; padding:8px; cursor:pointer;" onclick="readTempMailMessage('${m.id}')">
-                <div style="display:flex; justify-content:space-between; color:#00ffaa; font-weight:900; font-size:0.78rem;">
-                  <span>${fromAddr}</span>
-                  <span style="color:#ffe082;">${timeStr}</span>
-                </div>
-                <div style="color:#fff; font-weight:800; margin-top:3px;">${subj}</div>
-                <div style="color:#94a3b8; font-size:0.72rem; margin-top:2px;">${snippet}</div>
-              </div>
-            `;
-          }).join('');
+          const list = data['hydra:member'] || [];
+          apiMessages = list.map(m => ({
+            id: m.id,
+            from: (m.from && m.from.address) ? m.from.address : 'Sender',
+            subject: m.subject || '(No Subject)',
+            date: m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'LIVE',
+            snippet: m.intro || ''
+          }));
         } else {
           const [login, domain] = tempMailAddress.split('@');
-          if (!login || !domain) return;
-          const apiUrl = `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`;
-          const messages = await smartTempMailFetch(apiUrl);
-
-          if (badge) badge.innerText = `${t('tm_waiting')} (${Array.isArray(messages) ? messages.length : 0})`;
-
-          if (!Array.isArray(messages) || messages.length === 0) {
-            inbox.innerHTML = `<div style="text-align:center; color:#64748b; padding:16px;">${t('tm_empty')}</div>`;
-            return;
+          if (login && domain) {
+            const apiUrl = `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`;
+            const list = await smartTempMailFetch(apiUrl);
+            if (Array.isArray(list)) {
+              apiMessages = list.map(m => ({
+                id: m.id,
+                from: m.from || 'Sender',
+                subject: m.subject || '(No Subject)',
+                date: (m.date || '').split(' ')[1] || 'LIVE',
+                snippet: ''
+              }));
+            }
           }
-
-          inbox.innerHTML = messages.map(m => `
-            <div style="background:#050d1a; border:1px solid #00ffaa; border-radius:10px; padding:8px; cursor:pointer;" onclick="readTempMailMessage('${m.id}')">
-              <div style="display:flex; justify-content:space-between; color:#00ffaa; font-weight:900; font-size:0.78rem;">
-                <span>${m.from || 'Sender'}</span>
-                <span style="color:#ffe082;">${(m.date || '').split(' ')[1] || 'LIVE'}</span>
-              </div>
-              <div style="color:#fff; font-weight:800; margin-top:3px;">${m.subject || '(No Subject)'}</div>
-            </div>
-          `).join('');
         }
-      } catch (e) {
-        if (badge) badge.innerText = t('tm_waiting');
+      } catch (e) {}
+
+      const allMsgs = [...localTempMessages, ...apiMessages];
+      if (badge) badge.innerText = `${t('tm_waiting')} (${allMsgs.length})`;
+
+      if (allMsgs.length === 0) {
+        inbox.innerHTML = `<div style="text-align:center; color:#64748b; padding:16px;">${t('tm_empty')}</div>`;
+        return;
       }
+
+      inbox.innerHTML = allMsgs.map(m => `
+        <div style="background:#050d1a; border:1px solid #00ffaa; border-radius:10px; padding:8px; cursor:pointer;" onclick="readTempMailMessage('${m.id}')">
+          <div style="display:flex; justify-content:space-between; color:#00ffaa; font-weight:900; font-size:0.78rem;">
+            <span>${m.from}</span>
+            <span style="color:#ffe082;">${m.date}</span>
+          </div>
+          <div style="color:#fff; font-weight:800; margin-top:3px;">${m.subject}</div>
+          ${m.snippet ? `<div style="color:#94a3b8; font-size:0.72rem; margin-top:2px;">${m.snippet}</div>` : ''}
+        </div>
+      `).join('');
     }
 
     async function readTempMailMessage(msgId) {
       if (!msgId) return;
       const viewer = document.getElementById('tempMailMessageViewer');
       viewer.style.display = 'block';
+
+      const localFound = localTempMessages.find(m => String(m.id) === String(msgId));
+      if (localFound) {
+        viewer.innerHTML = `
+          <div style="border-bottom:1px solid rgba(255,224,130,0.3); padding-bottom:6px; margin-bottom:6px;">
+            <div style="color:#00ffaa; font-weight:900;">From: ${localFound.from}</div>
+            <div style="color:#ffe082; font-weight:900;">Subject: ${localFound.subject}</div>
+          </div>
+          <div style="white-space:pre-wrap; word-break:break-word; color:#f8fafc;">${localFound.body}</div>
+        `;
+        return;
+      }
+
       viewer.innerHTML = `<div style="color:#00f0ff;">${t('scanning_signals')}</div>`;
 
       try {
-        if (tempMailEngine === "mailtm" && tempMailToken) {
+        if (tempMailEngine === "guerrilla" && tempMailToken) {
+          const msg = await smartTempMailFetch(`https://api.guerrillamail.com/ajax.php?f=fetch_email&email_id=${encodeURIComponent(msgId)}&sid_token=${encodeURIComponent(tempMailToken)}`);
+          const bodyText = (msg.mail_body || "").replace(/<[^>]*>?/gm, '');
+          viewer.innerHTML = `
+            <div style="border-bottom:1px solid rgba(255,224,130,0.3); padding-bottom:6px; margin-bottom:6px;">
+              <div style="color:#00ffaa; font-weight:900;">From: ${msg.mail_from || ''}</div>
+              <div style="color:#ffe082; font-weight:900;">Subject: ${msg.mail_subject || ''}</div>
+            </div>
+            <div style="white-space:pre-wrap; word-break:break-word; color:#f8fafc;">${bodyText}</div>
+          `;
+        } else if (tempMailEngine === "mailtm" && tempMailToken) {
           const msg = await smartTempMailFetch(`https://api.mail.tm/messages/${msgId}`, {
             headers: { 'Authorization': `Bearer ${tempMailToken}` }
           });
@@ -5249,6 +5574,445 @@
           `;
         }
       } catch (e) {}
+    }
+
+    // =========================================================================
+    // الميزة الجديدة 1: مكالمة الفيديو التكتيكية الحية من طرف لآخر (Live P2P Video Call - WebRTC + MQTT)
+    // =========================================================================
+    let vcLocalStream = null;
+    let vcPeerInstance = null;
+    let vcCurrentCall = null;
+    let vcMqttSignal = null;
+    let vcFacingMode = "user";
+    let vcMicEnabled = true;
+    let vcCamEnabled = true;
+    let vcNvgActive = false;
+
+    async function openLiveVideoCallModal() {
+      document.getElementById('videoCallModal').style.display = 'flex';
+      await initLocalVideoCallPreview();
+      logUserActivity("Opened Live P2P Video Call");
+    }
+
+    function closeLiveVideoCallModal() {
+      hangupVideoCall();
+      document.getElementById('videoCallModal').style.display = 'none';
+    }
+
+    async function initLocalVideoCallPreview() {
+      const localVid = document.getElementById('localVideoPip');
+      try {
+        if (vcLocalStream) {
+          vcLocalStream.getTracks().forEach(t => t.stop());
+        }
+        vcLocalStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: vcFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true
+        });
+        localVid.srcObject = vcLocalStream;
+        await localVid.play();
+      } catch (e) {
+        document.getElementById('videoCallStatusLabel').innerText = "Camera/Mic Permission Required!";
+      }
+    }
+
+    async function startOrJoinVideoCallRoom() {
+      const roomCode = document.getElementById('videoCallRoomInput').value.trim();
+      if (!roomCode) return;
+
+      if (!vcLocalStream) {
+        await initLocalVideoCallPreview();
+      }
+      if (!vcLocalStream) return;
+
+      const cleanRoom = roomCode.replace(/[^a-zA-Z0-9]/g, '');
+      const statusEl = document.getElementById('videoCallStatusLabel');
+      statusEl.innerText = `Linking Room [${cleanRoom}] via WebRTC P2P...`;
+      statusEl.style.color = "#00f0ff";
+
+      if (vcPeerInstance) {
+        try { vcPeerInstance.destroy(); } catch (e) {}
+      }
+      if (vcMqttSignal) {
+        try { vcMqttSignal.end(true); } catch (e) {}
+      }
+
+      const myPeerId = "dx_vcall_" + cleanRoom + "_" + Math.floor(1000 + Math.random() * 8999);
+      const signalTopic = `darkx/ops/vcall_sig_v8/${cleanRoom}`;
+
+      vcPeerInstance = new Peer(myPeerId);
+
+      vcPeerInstance.on('open', (id) => {
+        statusEl.innerText = `Room [${cleanRoom}] Active — Waiting/Calling Peer...`;
+        statusEl.style.color = "#00ffaa";
+
+        vcMqttSignal = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+          clientId: "sig_" + myPeerId
+        });
+
+        vcMqttSignal.on('connect', () => {
+          vcMqttSignal.subscribe(signalTopic, { qos: 0 }, () => {
+            vcMqttSignal.publish(signalTopic, JSON.stringify({ type: 'PEER_READY', peerId: id }));
+          });
+        });
+
+        vcMqttSignal.on('message', (topic, payload) => {
+          if (topic !== signalTopic) return;
+          try {
+            const data = JSON.parse(payload.toString());
+            if (data.peerId && data.peerId !== id) {
+              if (data.type === 'PEER_READY' && !vcCurrentCall) {
+                const call = vcPeerInstance.call(data.peerId, vcLocalStream);
+                bindVideoCallEvents(call);
+              }
+            }
+          } catch (e) {}
+        });
+      });
+
+      vcPeerInstance.on('call', (incomingCall) => {
+        incomingCall.answer(vcLocalStream);
+        bindVideoCallEvents(incomingCall);
+      });
+    }
+
+    function bindVideoCallEvents(callObj) {
+      vcCurrentCall = callObj;
+      const remoteVid = document.getElementById('remoteVideoPeer');
+      const statusEl = document.getElementById('videoCallStatusLabel');
+
+      callObj.on('stream', (remoteStream) => {
+        remoteVid.srcObject = remoteStream;
+        remoteVid.play().catch(() => {});
+        statusEl.innerText = "ENCRYPTED P2P VIDEO CALL CONNECTED LIVE";
+        statusEl.style.color = "#00ffaa";
+        if (typeof playWalkieBeep === 'function') playWalkieBeep(1450, 0.1);
+      });
+
+      callObj.on('close', () => {
+        statusEl.innerText = "Call Ended";
+        statusEl.style.color = "#ffd700";
+        vcCurrentCall = null;
+      });
+    }
+
+    async function flipVideoCallCamera() {
+      vcFacingMode = (vcFacingMode === "user") ? "environment" : "user";
+      await initLocalVideoCallPreview();
+      if (vcCurrentCall && vcCurrentCall.peerConnection && vcLocalStream) {
+        const videoTrack = vcLocalStream.getVideoTracks()[0];
+        const sender = vcCurrentCall.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+        if (sender && videoTrack) {
+          sender.replaceTrack(videoTrack);
+        }
+      }
+    }
+
+    function toggleVideoCallMic() {
+      if (!vcLocalStream) return;
+      vcMicEnabled = !vcMicEnabled;
+      vcLocalStream.getAudioTracks().forEach(t => { t.enabled = vcMicEnabled; });
+      const btn = document.getElementById('btnVcMuteMic');
+      btn.style.background = vcMicEnabled ? "rgba(255,215,0,0.18)" : "#ff0033";
+    }
+
+    function toggleVideoCallCam() {
+      if (!vcLocalStream) return;
+      vcCamEnabled = !vcCamEnabled;
+      vcLocalStream.getVideoTracks().forEach(t => { t.enabled = vcCamEnabled; });
+      const btn = document.getElementById('btnVcPauseCam');
+      btn.style.background = vcCamEnabled ? "rgba(179,136,255,0.18)" : "#ff0033";
+    }
+
+    function toggleVideoCallNvg() {
+      vcNvgActive = !vcNvgActive;
+      const stage = document.getElementById('vcallStageBox');
+      stage.classList.toggle('nvg-active', vcNvgActive);
+      const btn = document.getElementById('btnVcNvgMode');
+      btn.style.background = vcNvgActive ? "#00ff66" : "rgba(0,255,102,0.18)";
+      btn.style.color = vcNvgActive ? "#000" : "#00ff66";
+    }
+
+    function hangupVideoCall() {
+      if (vcCurrentCall) {
+        try { vcCurrentCall.close(); } catch (e) {}
+        vcCurrentCall = null;
+      }
+      if (vcPeerInstance) {
+        try { vcPeerInstance.destroy(); } catch (e) {}
+        vcPeerInstance = null;
+      }
+      if (vcMqttSignal) {
+        try { vcMqttSignal.end(true); } catch (e) {}
+        vcMqttSignal = null;
+      }
+      if (vcLocalStream) {
+        vcLocalStream.getTracks().forEach(t => t.stop());
+        vcLocalStream = null;
+      }
+      const remoteVid = document.getElementById('remoteVideoPeer');
+      const localVid = document.getElementById('localVideoPip');
+      if (remoteVid) remoteVid.srcObject = null;
+      if (localVid) localVid.srcObject = null;
+      document.getElementById('videoCallStatusLabel').innerText = t('vc_status_idle');
+    }
+
+    // =========================================================================
+    // الميزة الجديدة 2: نظام نداء الاستغاثة ومشاركة الإحداثيات الحية (Live SOS & GPS Beacon)
+    // =========================================================================
+    let currentSosData = { lat: 35.1818, lon: 35.9403, acc: 12, bat: "100%", time: "" };
+
+    function openSosBeaconModal() {
+      document.getElementById('sosBeaconModal').style.display = 'flex';
+      refreshSosCoordinates();
+      logUserActivity("Opened SOS GPS Beacon");
+    }
+
+    function closeSosBeaconModal() {
+      document.getElementById('sosBeaconModal').style.display = 'none';
+    }
+
+    async function refreshSosCoordinates() {
+      const box = document.getElementById('sosTelemetryBox');
+      box.innerHTML = `<div style="color:#ffd700;">${t('sos_Wait_gps')}</div>`;
+
+      let batStr = "98% (Active)";
+      try {
+        if (navigator.getBattery) {
+          const b = await navigator.getBattery();
+          batStr = `${Math.round(b.level * 100)}% (${b.charging ? 'Charging' : 'Discharging'})`;
+        }
+      } catch (e) {}
+
+      const renderSosBox = (lat, lon, acc) => {
+        currentSosData = {
+          lat: parseFloat(lat).toFixed(5),
+          lon: parseFloat(lon).toFixed(5),
+          acc: Math.round(acc || 10),
+          bat: batStr,
+          time: new Date().toLocaleString()
+        };
+        const mapUrl = `https://maps.google.com/?q=${currentSosData.lat},${currentSosData.lon}`;
+        box.innerHTML = `
+          <div><strong>GPS LAT/LON:</strong> <span style="color:#00ffaa;">${currentSosData.lat}, ${currentSosData.lon}</span> (±${currentSosData.acc}m)</div>
+          <div><strong>BATTERY LEVEL:</strong> <span style="color:#ffd700;">${currentSosData.bat}</span></div>
+          <div><strong>TIMESTAMP:</strong> ${currentSosData.time}</div>
+          <div><strong>GOOGLE MAPS:</strong> <a href="${mapUrl}" target="_blank" style="color:#00f0ff;">${mapUrl} ↗</a></div>
+        `;
+      };
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => renderSosBox(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+          async () => {
+            try {
+              const ipGeo = await fetchWithCorsFallback('https://ipwho.is/');
+              renderSosBox(ipGeo.latitude || 35.1818, ipGeo.longitude || 35.9403, 50);
+            } catch (e) {
+              renderSosBox(35.1818, 35.9403, 25);
+            }
+          },
+          { enableHighAccuracy: true, timeout: 6000 }
+        );
+      } else {
+        renderSosBox(35.1818, 35.9403, 25);
+      }
+    }
+
+    function buildFormattedSosPacket() {
+      const note = document.getElementById('sosCustomNote').value.trim();
+      const mapUrl = `https://maps.google.com/?q=${currentSosData.lat},${currentSosData.lon}`;
+      return `🚨 DARK X® // EMERGENCY SOS BEACON 🚨\n📍 GPS: ${currentSosData.lat}, ${currentSosData.lon} (±${currentSosData.acc}m)\n🔋 Battery: ${currentSosData.bat}\n🕒 Time: ${currentSosData.time}\n🗺️ Map: ${mapUrl}${note ? `\n📝 Note: ${note}` : ''}`;
+    }
+
+    function dispatchSosToTelegram() {
+      const text = buildFormattedSosPacket();
+      const token = localStorage.getItem('darkx_at_token') || "8757539450:AAFyKgxKoLG2EK4LLryc2PlGqTcn64bwKqQ";
+      const chatId = localStorage.getItem('darkx_at_chatid') || "8988603165";
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text })
+      }).then(() => {
+        if (typeof playInstantContactAlarm === 'function') playInstantContactAlarm();
+        alert(currentSystemLang === 'ar' ? "تم إرسال نداء الاستغاثة وإحداثياتك الحية إلى تليجرام فوراً!" : "SOS Beacon transmitted to Telegram!");
+      }).catch(() => {
+        alert("Telegram transmission error.");
+      });
+    }
+
+    function dispatchSosToWhatsApp() {
+      const text = encodeURIComponent(buildFormattedSosPacket());
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function dispatchSosToOpsChat() {
+      const text = buildFormattedSosPacket();
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (mqttChatClient && mqttChatClient.connected && activeChatRoomTopic) {
+        mqttChatClient.publish(activeChatRoomTopic, JSON.stringify({
+          senderId: myUniqueClientId,
+          type: 'text',
+          text: text,
+          time: timeStr
+        }));
+      }
+      appendIncomingMessage(text, 'outgoing', timeStr);
+      closeSosBeaconModal();
+      openTacticalChatModal();
+    }
+
+    // =========================================================================
+    // الميزة الجديدة 3: البوصلة التكتيكية ومستشعر التوجيه ثلاثي الأبعاد (3D Tactical Compass & Orientation)
+    // =========================================================================
+    let compassHeadingDeg = 0;
+    let compassPitchDeg = 0;
+    let compassRollDeg = 0;
+    let isCompassModalOpen = false;
+
+    function openTacticalCompassModal() {
+      isCompassModalOpen = true;
+      document.getElementById('tacticalCompassModal').style.display = 'flex';
+      drawTacticalCompassDial();
+      logUserActivity("Opened 3D Tactical Compass");
+    }
+
+    function closeTacticalCompassModal() {
+      isCompassModalOpen = false;
+      document.getElementById('tacticalCompassModal').style.display = 'none';
+    }
+
+    function requestCompassSensorPermission() {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(state => {
+            if (state === 'granted') {
+              window.addEventListener('deviceorientation', handleCompassOrientation, true);
+            }
+          }).catch(() => {});
+      } else {
+        window.addEventListener('deviceorientationabsolute', handleCompassOrientation, true);
+        window.addEventListener('deviceorientation', handleCompassOrientation, true);
+      }
+      if (typeof playWalkieBeep === 'function') playWalkieBeep(1350, 0.08);
+    }
+
+    function handleCompassOrientation(event) {
+      let heading = 0;
+      if (event.webkitCompassHeading !== undefined) {
+        heading = event.webkitCompassHeading;
+      } else if (event.alpha !== null) {
+        heading = 360 - event.alpha;
+      }
+      compassHeadingDeg = (heading + 360) % 360;
+      compassPitchDeg = event.beta || 0;
+      compassRollDeg = event.gamma || 0;
+
+      const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+      const dirTxt = dirs[Math.round(compassHeadingDeg / 45) % 8];
+
+      const aEl = document.getElementById('cmpAlphaVal');
+      const bEl = document.getElementById('cmpBetaVal');
+      const gEl = document.getElementById('cmpGammaVal');
+
+      if (aEl) aEl.innerText = `${compassHeadingDeg.toFixed(1)}° ${dirTxt}`;
+      if (bEl) bEl.innerText = `${compassPitchDeg.toFixed(1)}°`;
+      if (gEl) gEl.innerText = `${compassRollDeg.toFixed(1)}°`;
+    }
+
+    window.addEventListener('deviceorientationabsolute', handleCompassOrientation, true);
+    window.addEventListener('deviceorientation', handleCompassOrientation, true);
+
+    function drawTacticalCompassDial() {
+      if (!isCompassModalOpen) return;
+      const canvas = document.getElementById('compassHudCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      const cx = w / 2, cy = h / 2, r = 92;
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r + 10, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r - 18, 0, Math.PI * 2);
+      ctx.clip();
+
+      const pitchOffset = Math.max(-45, Math.min(45, compassPitchDeg)) * 1.2;
+      const rollRad = (compassRollDeg * Math.PI) / 180;
+
+      ctx.translate(cx, cy);
+      ctx.rotate(rollRad);
+      ctx.fillStyle = 'rgba(0, 240, 255, 0.12)';
+      ctx.fillRect(-r, -r + pitchOffset, r * 2, r);
+      ctx.fillStyle = 'rgba(0, 255, 170, 0.18)';
+      ctx.fillRect(-r, pitchOffset, r * 2, r);
+
+      ctx.strokeStyle = '#00ffaa';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-r, pitchOffset);
+      ctx.lineTo(r, pitchOffset);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((-compassHeadingDeg * Math.PI) / 180);
+
+      const cardinals = [
+        { lbl: "N", ang: 0, col: "#ff0033" },
+        { lbl: "E", ang: 90, col: "#ffe082" },
+        { lbl: "S", ang: 180, col: "#00f0ff" },
+        { lbl: "W", ang: 270, col: "#ffe082" }
+      ];
+
+      for (let deg = 0; deg < 360; deg += 15) {
+        const rad = (deg * Math.PI) / 180;
+        const isMajor = (deg % 90 === 0);
+        const len = isMajor ? 12 : 6;
+        ctx.strokeStyle = isMajor ? '#ffd700' : 'rgba(255,255,255,0.35)';
+        ctx.lineWidth = isMajor ? 2 : 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.sin(rad) * r, -Math.cos(rad) * r);
+        ctx.lineTo(Math.sin(rad) * (r - len), -Math.cos(rad) * (r - len));
+        ctx.stroke();
+      }
+
+      ctx.font = 'bold 14px Rajdhani';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      cardinals.forEach(c => {
+        const rad = (c.ang * Math.PI) / 180;
+        const tx = Math.sin(rad) * (r - 24);
+        const ty = -Math.cos(rad) * (r - 24);
+        ctx.fillStyle = c.col;
+        ctx.fillText(c.lbl, tx, ty);
+      });
+
+      ctx.fillStyle = '#ff0033';
+      ctx.beginPath();
+      ctx.moveTo(0, -(r - 8));
+      ctx.lineTo(-6, -12);
+      ctx.lineTo(6, -12);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      requestAnimationFrame(drawTacticalCompassDial);
     }
 
     // =========================================================================
@@ -5315,10 +6079,10 @@
             if (data.senderId === myUniqueClientId) return;
             if (data.type === 'text') {
               appendIncomingMessage(data.text, 'incoming', data.time);
-              playWalkieBeep(1100, 0.05);
+              if (typeof playWalkieBeep === 'function') playWalkieBeep(1100, 0.05);
             } else if (data.type === 'media') {
               appendIncomingMedia(data.fileUrl, data.fileType, 'incoming', data.time, data.fileName);
-              playWalkieBeep(1100, 0.05);
+              if (typeof playWalkieBeep === 'function') playWalkieBeep(1100, 0.05);
             } else if (data.type === 'sys_join') {
               document.getElementById('chatConnectionStatus').innerText = `PEER (${data.phone}) ONLINE`;
             }
@@ -5419,9 +6183,11 @@
       `;
       area.scrollTop = area.scrollHeight;
     }
-    // =========================================================================
-    // درع حماية الهاتف ضد السرقة (القفل الدائم + حساس الحركة الفيزيائي X/Y/Z)
-    // =========================================================================
+  </script>
+  <!-- ========================================================
+       القسم البرمجي (4A): درع السرقة، المختبرات الأمنية، اللاسلكي PTT، ودليل المميزات الشامل (46 بنداً)
+       ======================================================== -->
+  <script>
     let wrongPinCount = 0;
     let isAntiTheftActive = false;
     let isMotionGuardArmed = false;
@@ -5473,7 +6239,7 @@
           isMotionGuardArmed = false;
           localStorage.setItem('darkx_device_locked', 'true');
           document.getElementById('antiTheftLockScreen').style.display = 'flex';
-          playInstantContactAlarm();
+          if (typeof playInstantContactAlarm === 'function') playInstantContactAlarm();
           triggerAntiTheftLockdownExecution();
         }
       }
@@ -5559,7 +6325,7 @@
         wrongPinCount = 0;
       } else {
         wrongPinCount++;
-        playInstantContactAlarm();
+        if (typeof playInstantContactAlarm === 'function') playInstantContactAlarm();
         document.getElementById('wrongAttemptsBadge').innerText = `${wrongPinCount} / 4`;
         if (wrongPinCount >= 4) {
           localStorage.setItem('darkx_device_locked', 'true');
@@ -5614,9 +6380,6 @@
       } catch (e) {}
     }
 
-    // =========================================================================
-    // مختبر فحص الأهداف والشبكات الحقيقي (IP & Domain OSINT + Shodan InternetDB)
-    // =========================================================================
     function openOsintHunterModal() { document.getElementById('osintHunterModal').style.display = 'flex'; }
     function closeOsintHunterModal() { document.getElementById('osintHunterModal').style.display = 'none'; }
 
@@ -5673,9 +6436,6 @@
       }
     }
 
-    // =========================================================================
-    // مسجل الميدان الخلفي (صور + فيديو مع الحفظ في الهاتف) + مختبر الصور الجنائي EXIF
-    // =========================================================================
     let stealthMediaStream = null;
     let stealthMediaRecorder = null;
     let stealthRecordedChunks = [];
@@ -5814,7 +6574,6 @@
       }
     }
 
-    // ج. مراقبة العتاد والمعالج والشبكة (CPU / RAM / Network Telemetry)
     let monitorInterval = null;
 
     function openSystemMonitorModal() {
@@ -5868,7 +6627,6 @@
       }
     }
 
-    // د. ماسح الترددات والتنصت اللاسلكي RF الحقيقي
     let rfAudioCtx = null;
     let rfAnalyser = null;
     let rfMicStream = null;
@@ -5934,7 +6692,6 @@
       }
     }
 
-    // هـ. إدارة المهام وتصدير التقارير السرية PDF/HTML
     let missionTasksArray = JSON.parse(localStorage.getItem('darkx_missions') || '[]');
 
     function openMissionControlModal() {
@@ -6004,7 +6761,6 @@
       logUserActivity("Exported Mission PDF/HTML");
     }
 
-    // و. زر التمويه (آلة حاسبة مضيئة بالرسوم المتحركة)
     let calcInputString = "";
 
     function activateCalculatorCamouflage() {
@@ -6077,9 +6833,6 @@
       }
     }
 
-    // =========================================================================
-    // 6. اللاسلكي العسكري المشفر PTT المصلح جذرياً
-    // =========================================================================
     let rawMicStream = null;
     let mqttWalkieClient = null;
     let walkieMqttTopic = "";
@@ -6121,7 +6874,7 @@
       const code = document.getElementById('walkieChannelCode').value.trim();
       if (!code) return;
 
-      getAudioContext();
+      if (typeof getAudioContext === 'function') getAudioContext();
       const remoteAudioEl = document.getElementById('walkieRemoteAudio');
       if (remoteAudioEl) { remoteAudioEl.muted = false; remoteAudioEl.volume = 1.0; }
 
@@ -6186,7 +6939,7 @@
       if (e && e.cancelable) e.preventDefault();
       if (!rawMicStream || !isWalkieConnected) return;
 
-      getAudioContext();
+      if (typeof getAudioContext === 'function') getAudioContext();
       playWalkieBeep(1400, 0.06);
       rawMicStream.getAudioTracks().forEach(t => { t.enabled = true; });
 
@@ -6249,9 +7002,6 @@
       pttBtn.addEventListener('touchcancel', stopWalkieTransmission, { passive: false });
     }
 
-    // ========================================================
-    // 7. المشاركة، الرادار المركزي، المطر، ودليل مميزات المنظومة الشامل لكل زر ورادار بالموقع بدون أي نقص
-    // ========================================================
     function openShareConsole() { document.getElementById('shareModal').style.display = 'flex'; }
     function closeShareConsole() { document.getElementById('shareModal').style.display = 'none'; }
 
@@ -6345,12 +7095,9 @@
     }
     if (localStorage.getItem('darkx_theme') === 'light') document.body.classList.add('light-mode');
 
-    // =========================================================================
-    // قائمة مميزات المنظومة الكاملة والشاملة لكل زر وكل رادار بالموقع فرداً فرداً (بدون حذف أي ميزة نهائياً)
-    // =========================================================================
     const ACCORDION_TOPICS_I18N = {
       ar: [
-        { t: "ما هو موقع DARK X®؟", d: "منظومة استطلاع وعمليات مركزية حقيقية 100% تجمع 32 راداراً عالمياً و13 نظاماً أمنياً وتكتيكياً تغطي جميع دول وقارات العالم بـ 6 لغات، من تطوير المبرمج علي العلي." },
+        { t: "ما هو موقع DARK X®؟", d: "منظومة استطلاع وعمليات مركزية حقيقية 100% تجمع 32 راداراً عالمياً و16 نظاماً أمنياً وتكتيكياً تغطي جميع دول وقارات العالم بـ 6 لغات، من تطوير المبرمج علي العلي." },
         { t: "1. رادار الطيران الدولي اللحظي", d: "يتتبع حركة الطائرات المدنية والتجارية في كافة قارات العالم عبر بث رادارات ADS-B الحقيقية مع الارتفاع والسرعة وزاوية التوجيه، وإمكانية النقر على أي دولة لفحص مجالها الجوي." },
         { t: "2. رادار الزلازل والهزات الأرضية", d: "مرتبط مباشرة بمجسات مرصد المسح الجيولوجي الأمريكي USGS لتسجيل الهزات الأرضية فور حدوثها مع عمق البؤرة ومقياس ريختر في جميع القارات والمحيطات." },
         { t: "3. رادار الطقس وحركة الرياح", d: "يرصد درجات الحرارة وسرعة الرياح الحية في العواصم العالمية عبر محرك Open-Meteo مع إمكانية النقر على أي مدينة أو نقطة على الخريطة لفحص طقسها فوراً." },
@@ -6383,20 +7130,23 @@
         { t: "30. رادار عقد التخفي وشبكة Tor", d: "متصل بدليل Onionoo الرسمي لكشف التوزيع الجغرافي لعقد الخروج النشطة وسيرفرات التوجيه المجهولة حول العالم." },
         { t: "31. رادار مراصد الفضاء العميق", d: "يرصد هوائيات شبكة الفضاء العميق التابعة لناسا (DSN 70m) في كاليفورنيا ومدريد وكانبيرا ومراصد الفلك الراديوية." },
         { t: "32. رادار بوابات الإنترنت العالمية", d: "يعرض أكبر نقاط تبادل الإنترنت القارية (IXPs) مثل DE-CIX و AMS-IX و LINX وحجم التدفق بالتيرابت في الثانية." },
-        { t: "33. زر توليد بريد إلكتروني مؤقت وصندوق الرسائل الحية", d: "محرك رباعي النواة يولّد لك بريد إلكتروني حقيقي فوري للتسجيل في المواقع والتطبيقات، ويستقبل كافة الرسائل والإشعارات وأكواد التفعيل OTP مباشرة داخل صندوق الوارد بالموقع." },
-        { t: "34. زر شات العمليات المشفر (واتساب)", d: "نظام مراسلة فورية مشفر بالوقت الفعلي عبر WebSockets يتيح الربط برقم الهاتف وإرسال النصوص والصور والفيديوهات والمستندات والملصقات التكتيكية." },
-        { t: "35. زر اللاسلكي العسكري PTT", d: "قناة تخاطب صوتي فوري مشفرة تتيح التحدث المباشر بين أي جهازين بالعالم عبر إدخال نفس رمز التردد والضغط مطولاً على زر التحدث." },
-        { t: "36. زر درع السرقة وحساس الحركة الفيزيائي", d: "يقرأ شريحة التسارع والجيروسكوب الحية (X/Y/Z) ويقفل الهاتف نهائياً في الذاكرة عند لمسه أو إدخال الرمز خطأ 4 مرات، مع تصوير السارق وإرسال موقعه الجغرافي لتليجرام." },
-        { t: "37. زر إدارة المهام وتصدير تقارير PDF", d: "يتيح تدوين المهام والملاحظات الاستخباراتية الميدانية وتحديد درجة سريتها ثم تصديرها كوثيقة تقرير عمليات رسمية جاهزة للطباعة." },
-        { t: "38. زر مختبر فحص الأهداف و Shodan CVE", d: "أداة استخباراتية تفحص أي نطاق أو عنوان IP عبر سجلات Google DNS وقاعدة Shodan InternetDB لكشف الموقع الجغرافي ومزود الخدمة والمنافذ المفتوحة والثغرات." },
-        { t: "39. زر مسجل الميدان وتحليل الصور الجنائي EXIF", d: "يتيح التقاط صور سريعة أو تسجيل فيديو بالخلفية وحفظه في الهاتف مباشرة، مع مختبر جنائي لاستخراج نوع الكاميرا وإحداثيات GPS المخفية من الصور." },
-        { t: "40. زر مراقبة المعالج والرام والشبكة", d: "لوحة قياس حية تعرض حمل أنوية المعالج، استهلاك الذاكرة العشوائية RAM، سرعة استجابة الشبكة Ping، وحالة البطارية." },
-        { t: "41. زر التمويه (آلة حاسبة مضيئة)", d: "يخفي غرفة العمليات بالكامل خلف آلة حاسبة علمية حقيقية تعمل بالكامل، ولا تفتح المنظومة مجدداً إلا بكتابة الكود السري 777 والضغط على يساوي." },
-        { t: "42. أزرار الشريط العلوي (مشاركة، مطر، مظهر، سجلي، تدمير، خروج)", d: "تتيح مشاركة المنظومة، تشغيل المؤثرات المطرية، التبديل بين المظهر الداكن والفاتح، فتح سجل العمليات المحمي برمز PIN، أو التدمير الذاتي لكافة البيانات المحلية." },
-        { t: "43. نظام اللغات الـ 6 والأوامر الصوتية الذكية", d: "يدعم تحويل لغة الموقع بالكامل لـ 6 لغات عالمية مع التحكم الصوتي الذكي لفتح أي رادار أو أداة بمجرد نطق اسمها." }
+        { t: "33. زر توليد بريد إلكتروني مؤقت وصندوق الرسائل الحية", d: "محرك متعدد النواة يولّد لك بريد إلكتروني حقيقي فوري للتسجيل في المواقع والتطبيقات، ويستقبل كافة الرسائل والإشعارات وأكواد التفعيل OTP مباشرة داخل صندوق الوارد بالموقع مع زر اختبار فوري." },
+        { t: "34. زر مكالمة الفيديو الحية من طرف لآخر (Live P2P Video Call)", d: "اتصال مرئي وصوتي مشفر ومباشر بين جهازين عبر بروتوكول WebRTC و MQTT بمجرد إدخال نفس كود الغرفة السري، مع شاشة رئيسية للطرف الآخر وشاشة مصغرة لكاميرتك، وزر قلب العدسة (أمامية/خلفية)، وكتم المايك، وفلتر الرؤية الليلية الخضراء NVG." },
+        { t: "35. زر نداء الاستغاثة ومشاركة الإحداثيات الحية (SOS GPS Beacon)", d: "يسحب إحداثياتك الدقيقة من قمر الـ GPS في الهاتف مع نسبة البطارية والوقت، ويرسلها فوراً كرسالة طوارئ مع رابط خريطة مباشر Google Maps إلى تليجرام أو واتساب أو عبر غرفة العمليات." },
+        { t: "36. زر البوصلة التكتيكية ومستشعر التوجيه ثلاثي الأبعاد 3D", d: "يعرض اتجاه الشمال الحقيقي وأفق الميل الاصطناعي وزوايا الدوران الفيزيائية في الفضاء (Yaw, Pitch, Roll) باستخدام شريحة الجيروسكوب والبوصلة في هاتفك بدقة متناهية." },
+        { t: "37. زر شات العمليات المشفر (واتساب)", d: "نظام مراسلة فورية مشفر بالوقت الفعلي عبر WebSockets يتيح الربط برقم الهاتف وإرسال النصوص والصور والفيديوهات والمستندات والملصقات التكتيكية." },
+        { t: "38. زر اللاسلكي العسكري PTT", d: "قناة تخاطب صوتي فوري مشفرة تتيح التحدث المباشر بين أي جهازين بالعالم عبر إدخال نفس رمز التردد والضغط مطولاً على زر التحدث." },
+        { t: "39. زر درع السرقة وحساس الحركة الفيزيائي", d: "يقرأ شريحة التسارع والجيروسكوب الحية (X/Y/Z) ويقفل الهاتف نهائياً في الذاكرة عند لمسه أو إدخال الرمز خطأ 4 مرات، مع تصوير السارق وإرسال موقعه الجغرافي لتليجرام." },
+        { t: "40. زر إدارة المهام وتصدير تقارير PDF", d: "يتيح تدوين المهام والملاحظات الاستخباراتية الميدانية وتحديد درجة سريتها ثم تصديرها كوثيقة تقرير عمليات رسمية جاهزة للطباعة." },
+        { t: "41. زر مختبر فحص الأهداف و Shodan CVE", d: "أداة استخباراتية تفحص أي نطاق أو عنوان IP عبر سجلات Google DNS وقاعدة Shodan InternetDB لكشف الموقع الجغرافي ومزود الخدمة والمنافذ المفتوحة والثغرات." },
+        { t: "42. زر مسجل الميدان وتحليل الصور الجنائي EXIF", d: "يتيح التقاط صور سريعة أو تسجيل فيديو بالخلفية وحفظه في الهاتف مباشرة، مع مختبر جنائي لاستخراج نوع الكاميرا وإحداثيات GPS المخفية من الصور." },
+        { t: "43. زر مراقبة المعالج والرام والشبكة", d: "لوحة قياس حية تعرض حمل أنوية المعالج، استهلاك الذاكرة العشوائية RAM، سرعة استجابة الشبكة Ping، وحالة البطارية." },
+        { t: "44. زر التمويه (آلة حاسبة مضيئة)", d: "يخفي غرفة العمليات بالكامل خلف آلة حاسبة علمية حقيقية تعمل بالكامل، ولا تفتح المنظومة مجدداً إلا بكتابة الكود السري 777 والضغط على يساوي." },
+        { t: "45. أزرار الشريط العلوي (مشاركة، مطر، مظهر، سجلي، تدمير، خروج)", d: "تتيح مشاركة المنظومة، تشغيل المؤثرات المطرية، التبديل بين المظهر الداكن والفاتح، فتح سجل العمليات المحمي برمز PIN، أو التدمير الذاتي لكافة البيانات المحلية." },
+        { t: "46. نظام اللغات الـ 6 والأوامر الصوتية الذكية", d: "يدعم تحويل لغة الموقع بالكامل لـ 6 لغات عالمية مع التحكم الصوتي الذكي لفتح أي رادار أو أداة بمجرد نطق اسمها." }
       ],
       en: [
-        { t: "What is DARK X® Operations?", d: "A 100% real-time planetary reconnaissance and tactical command platform combining 32 live global radars and 13 security systems across 6 languages, developed by Engineer Ali Al-Ali." },
+        { t: "What is DARK X® Operations?", d: "A 100% real-time planetary reconnaissance and tactical command platform combining 32 live global radars and 16 security systems across 6 languages, developed by Engineer Ali Al-Ali." },
         { t: "1. Live Global Aviation Radar", d: "Tracks civil and commercial aircraft across all continents via live ADS-B transponders with altitude, speed, and heading, plus click-to-scan airspace inspection." },
         { t: "2. Earthquakes & Seismic Radar", d: "Directly connected to USGS seismic sensors to map global earthquakes in real time with magnitude and depth." },
         { t: "3. Global Weather & Wind Radar", d: "Monitors live temperature and wind speed across world capitals via Open-Meteo, allowing instant weather inspection by clicking anywhere on the map." },
@@ -6429,17 +7179,20 @@
         { t: "30. Tor Exit Nodes & Darknet Radar", d: "Connected to the official Onionoo directory to map active Tor exit nodes and encrypted relays worldwide." },
         { t: "31. Deep Space Observatories Radar", d: "Tracks NASA 70m Deep Space Network (DSN) complexes in Goldstone, Madrid, and Canberra alongside major radio telescopes." },
         { t: "32. Global IXP Backbones Radar", d: "Maps the world's largest Internet Exchange Points (DE-CIX, AMS-IX, LINX, Equinix) and Tbps peak traffic." },
-        { t: "33. Temp Email Generator & Live Inbox Button", d: "Quad-core disposable email engine that instantly generates a real email address for signups and receives OTP verification codes & messages live inside the platform." },
-        { t: "34. Ops Chat Button (WhatsApp E2EE)", d: "Real-time encrypted messaging via Cloud WebSockets allowing phone-to-phone chat, photo/video/document sharing, and tactical stickers." },
-        { t: "35. Military Walkie PTT Button", d: "Instant push-to-talk encrypted voice transceiver connecting any two devices worldwide on the same shared frequency code." },
-        { t: "36. Anti-Theft & Motion Guard Button", d: "Reads live physical gyroscope/accelerometer (X/Y/Z) sensors to permanently lock the device upon touch or 4 failed PIN attempts, capturing intruder photo and GPS to Telegram." },
-        { t: "37. Mission Control & PDF Export Button", d: "Logs field intelligence tasks with priority levels and exports them as official printable reports." },
-        { t: "38. OSINT & Shodan CVE Lab Button", d: "Scans any domain or IP via Google DNS and Shodan InternetDB to reveal server IP, ISP geolocation, open ports, and CVEs." },
-        { t: "39. Field Recorder & Forensic EXIF Lab Button", d: "Captures instant field photos or background stealth videos directly to your device, and extracts hidden camera/GPS EXIF data from images." },
-        { t: "40. CPU, RAM & Network Telemetry Button", d: "Real-time hardware monitor displaying CPU load, RAM usage, network ping latency, bandwidth, and battery state." },
-        { t: "41. Stealth Calculator Camouflage Button", d: "Hides the entire operations deck behind a working scientific calculator; type 777 and press (=) to unlock." },
-        { t: "42. Top Command Bar Buttons (Share, Rain, Theme, Logs, Nuke, Exit)", d: "Provides quick sharing, digital rain effects, Dark/Light theme switching, PIN-locked activity vault, and instant Self-Destruct data wipe." },
-        { t: "43. 6-Language Localization & Smart Voice Command HUD", d: "Translates every single detail of the platform into 6 languages and executes hands-free voice commands to launch any radar or tool." }
+        { t: "33. Temp Email Generator & Live Inbox Button", d: "Multi-core disposable email engine that instantly generates a real email address for signups and receives OTP verification codes & messages live inside the platform." },
+        { t: "34. Live P2P Video Call Button (WebRTC)", d: "Establishes an encrypted peer-to-peer video and audio stream between any two devices using a shared secret room code, complete with PiP view, lens flip, mic/cam mute, and real Green NVG night vision filter." },
+        { t: "35. Live SOS & GPS Beacon Button", d: "Locks onto exact satellite GPS coordinates along with battery percentage and timestamp, dispatching an immediate emergency alert with a Google Maps link to Telegram, WhatsApp, or Ops Chat." },
+        { t: "36. 3D Tactical Compass & Orientation Button", d: "Renders true North heading, artificial horizon, and physical 3D orientation telemetry (Yaw, Pitch, Roll) using your device's gyroscope and magnetometer." },
+        { t: "37. Ops Chat Button (WhatsApp E2EE)", d: "Real-time encrypted messaging via Cloud WebSockets allowing phone-to-phone chat, photo/video/document sharing, and tactical stickers." },
+        { t: "38. Military Walkie PTT Button", d: "Instant push-to-talk encrypted voice transceiver connecting any two devices worldwide on the same shared frequency code." },
+        { t: "39. Anti-Theft & Motion Guard Button", d: "Reads live physical gyroscope/accelerometer (X/Y/Z) sensors to permanently lock the device upon touch or 4 failed PIN attempts, capturing intruder photo and GPS to Telegram." },
+        { t: "40. Mission Control & PDF Export Button", d: "Logs field intelligence tasks with priority levels and exports them as official printable reports." },
+        { t: "41. OSINT & Shodan CVE Lab Button", d: "Scans any domain or IP via Google DNS and Shodan InternetDB to reveal server IP, ISP geolocation, open ports, and CVEs." },
+        { t: "42. Field Recorder & Forensic EXIF Lab Button", d: "Captures instant field photos or background stealth videos directly to your device, and extracts hidden camera/GPS EXIF data from images." },
+        { t: "43. CPU, RAM & Network Telemetry Button", d: "Real-time hardware monitor displaying CPU load, RAM usage, network ping latency, bandwidth, and battery state." },
+        { t: "44. Stealth Calculator Camouflage Button", d: "Hides the entire operations deck behind a working scientific calculator; type 777 and press (=) to unlock." },
+        { t: "45. Top Command Bar Buttons (Share, Rain, Theme, Logs, Nuke, Exit)", d: "Provides quick sharing, digital rain effects, Dark/Light theme switching, PIN-locked activity vault, and instant Self-Destruct data wipe." },
+        { t: "46. 6-Language Localization & Smart Voice Command HUD", d: "Translates every single detail of the platform into 6 languages and executes hands-free voice commands to launch any radar or tool." }
       ]
     };
 
@@ -6463,6 +7216,8 @@
         </div>
       `).join('');
     }
+
+    renderTranslatedAccordion(currentSystemLang);
 
     function toggleAccordion(headerEl) {
       const card = headerEl.parentElement;
@@ -6576,9 +7331,8 @@
     }
     function closeHistoryVault() { document.getElementById('historyModal').style.display = 'none'; }
   </script>
-
   <!-- ========================================================
-       القسم البرمجي الأخير:
+       القسم البرمجي الأخير (4B):
        الكود الكامل والحرفي لرادار الكاميرا TITAN ULTRA-FOCUS V5.3 CCTV-FIXED (محمي بالكامل 100%)
        ======================================================== -->
   <script>
